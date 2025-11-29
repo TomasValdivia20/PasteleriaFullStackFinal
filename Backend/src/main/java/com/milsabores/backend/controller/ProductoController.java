@@ -66,10 +66,10 @@ public class ProductoController {
         try {
             Producto producto = productoService.actualizar(id, productoActualizado);
             return ResponseEntity.ok(producto);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
         }
     }
 

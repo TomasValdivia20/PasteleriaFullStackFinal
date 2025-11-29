@@ -17,7 +17,7 @@ export default defineConfig({
     outDir: 'dist',
     assetsDir: 'assets',
     sourcemap: false,
-    minify: 'terser',
+    minify: 'esbuild', // Cambiar de terser a esbuild (más rápido y sin dependencias extra)
     // Optimizaciones
     rollupOptions: {
       output: {
@@ -26,13 +26,6 @@ export default defineConfig({
           'bootstrap': ['bootstrap'],
           'axios': ['axios']
         }
-      }
-    },
-    // Optimizaciones adicionales
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true
       }
     },
     chunkSizeWarningLimit: 1000

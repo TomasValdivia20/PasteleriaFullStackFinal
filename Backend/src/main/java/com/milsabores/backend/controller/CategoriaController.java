@@ -54,10 +54,10 @@ public class CategoriaController {
         try {
             Categoria categoria = categoriaService.actualizar(id, categoriaActualizada);
             return ResponseEntity.ok(categoria);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
         }
     }
 
