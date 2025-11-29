@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// Configuración de la URL base desde variable de entorno o fallback a AWS EC2
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://3.235.30.235:8080/api';
+// Configuración de la URL base desde variable de entorno
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 
 console.log('🔧 [API CONFIG] Inicializando cliente API con baseURL:', BASE_URL);
 

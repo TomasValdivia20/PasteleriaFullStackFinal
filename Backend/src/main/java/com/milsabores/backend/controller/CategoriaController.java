@@ -1,57 +1,73 @@
 package com.milsabores.backend.controller;
 
 import com.milsabores.backend.model.Categoria;
-import com.milsabores.backend.model.Producto;
-import com.milsabores.backend.repository.CategoriaRepository;
-import com.milsabores.backend.repository.ProductoRepository; // 1. Importamos el repo de productos
+import com.milsabores.backend.service.CategoriaService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * Controlador REST para gestión de Categorías
+ * Capa de presentación - MVC Pattern
+ */
 @RestController
 @RequestMapping("/api/categorias")
 public class CategoriaController {
 
-    @Autowired
-    private CategoriaRepository categoriaRepository;
+    private final CategoriaService categoriaService;
 
-    // 2. Inyectamos el repositorio de productos
     @Autowired
-    private ProductoRepository productoRepository;
+    public CategoriaController(CategoriaService categoriaService) {
+        this.categoriaService = categoriaService;
+    }
 
     @GetMapping
-    public List<Categoria> listarCategorias() {
-        return categoriaRepository.findAll();
+    public ResponseEntity<List<Categoria>> listarCategorias() {
+        List<Categoria> categorias = categoriaService.obtenerTodas();
+        return ResponseEntity.ok(categorias);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Categoria> obtenerCategoria(@PathVariable Long id) {
+        return categoriaService.obtenerPorId(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public Categoria crearCategoria(@RequestBody Categoria categoria) {
-        return categoriaRepository.save(categoria);
+    public ResponseEntity<Categoria> crearCategoria(@RequestBody Categoria categoria) {
+        try {
+            Categoria nuevaCategoria = categoriaService.crear(categoria);
+            return ResponseEntity.status(HttpStatus.CREATED).body(nuevaCategoria);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @PutMapping("/{id}")
-    public Categoria actualizarCategoria(@PathVariable Long id, @RequestBody Categoria categoriaActualizada) {
-        return categoriaRepository.findById(id).map(cat -> {
-            cat.setNombre(categoriaActualizada.getNombre());
-            cat.setDescripcion(categoriaActualizada.getDescripcion());
-            cat.setImagen(categoriaActualizada.getImagen());
-            return categoriaRepository.save(cat);
-        }).orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
+    public ResponseEntity<Categoria> actualizarCategoria(
+            @PathVariable Long id, 
+            @RequestBody Categoria categoriaActualizada) {
+        try {
+            Categoria categoria = categoriaService.actualizar(id, categoriaActualizada);
+            return ResponseEntity.ok(categoria);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
-    // 🛑 3. MÉTODO DE ELIMINACIÓN MEJORADO (MANUAL CASCADE)
     @DeleteMapping("/{id}")
-    public void eliminarCategoria(@PathVariable Long id) {
-        // Paso A: Buscar todos los productos que pertenecen a esta categoría
-        List<Producto> productosDeLaCategoria = productoRepository.findByCategoriaId(id);
-
-        // Paso B: Borrar esos productos primero
-        if (!productosDeLaCategoria.isEmpty()) {
-            productoRepository.deleteAll(productosDeLaCategoria);
+    public ResponseEntity<Void> eliminarCategoria(@PathVariable Long id) {
+        try {
+            categoriaService.eliminar(id);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
         }
-
-        // Paso C: Ahora que está "limpia", borrar la categoría
-        categoriaRepository.deleteById(id);
     }
 }

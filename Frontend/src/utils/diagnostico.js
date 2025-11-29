@@ -10,7 +10,7 @@ export const diagnosticarConexion = async () => {
   console.log('🔍 DIAGNÓSTICO DE CONEXIÓN API');
   console.log('🔍 ========================================\n');
 
-  const API_URL = import.meta.env.VITE_API_URL || 'http://98.92.85.200:8080/api';
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
   
   console.log('📋 Configuración:');
   console.log(`   VITE_API_URL: ${import.meta.env.VITE_API_URL}`);

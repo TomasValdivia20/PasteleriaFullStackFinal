@@ -1,11 +1,10 @@
 /**
  * Utilidad para generar rutas correctas de assets en desarrollo y producción
  * 
- * En desarrollo: /assets/img/foto.jpg
- * En producción (GitHub Pages): /Pasteleria-Mil-Sabores-VersionReactFinalFinal/assets/img/foto.jpg
+ * En desarrollo y producción (Vercel): /assets/img/foto.jpg
  */
 
-const BASE_PATH = import.meta.env.BASE_URL || '/';
+const BASE_PATH = '/';
 
 /**
  * Genera la ruta completa para un asset (imagen, archivo, etc.)
@@ -33,8 +32,6 @@ export const getAssetPath = (path) => {
 
   const fullPath = `${BASE_PATH}${finalPath}`;
   
-  console.log(`🖼️ [getAssetPath] ${path} → ${fullPath}`);
-  
   return fullPath;
 };
 
@@ -61,8 +58,3 @@ export const getImagePath = (imageName) => {
  * Ruta de imagen por defecto cuando falla la carga
  */
 export const DEFAULT_IMAGE = `${BASE_PATH}assets/img/etiqueta-vacia.png`;
-
-console.log('🛠️ [assetHelpers] Helpers de assets inicializados');
-console.log(`   BASE_URL: ${import.meta.env.BASE_URL}`);
-console.log(`   MODE: ${import.meta.env.MODE}`);
-console.log(`   DEFAULT_IMAGE: ${DEFAULT_IMAGE}`);
