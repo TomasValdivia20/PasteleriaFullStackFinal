@@ -1,0 +1,196 @@
+.carrito-container {
+  background-color: #fff8f0;
+  color: #3b1e0e;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  max-width: 900px;
+  margin: 2rem auto;
+  font-family: "Poppins", sans-serif;
+}
+
+.carrito-titulo {
+  font-family: "Pacifico", cursive;
+  font-size: 2rem;
+  color: #3b1e0e;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.carrito-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.5rem;
+}
+
+.carrito-tabla th,
+.carrito-tabla td {
+  padding: 0.8rem;
+  border-bottom: 1px solid #ddd;
+  text-align: center;
+}
+
+.carrito-tabla th {
+  background-color: #f9e8d9;
+  font-weight: 600;
+  color: #4a2a13;
+}
+
+.carrito-tabla td {
+  background-color: #fffaf3;
+}
+
+.boton-eliminar {
+  background-color: #ffe0e0;
+  color: #8b0000;
+  border: none;
+  border-radius: 8px;
+  padding: 0.4rem 0.7rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: 0.3s ease;
+}
+
+.boton-eliminar:hover {
+  background-color: #ffcccc;
+}
+
+.carrito-total {
+  font-size: 1.4rem;
+  font-weight: 700;
+  text-align: right;
+  margin-top: 1rem;
+  color: #3b1e0e;
+}
+
+.carrito-botones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.boton-vaciar,
+.boton-confirmar {
+  padding: 0.7rem 1.5rem;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.boton-vaciar {
+  background-color: #ffb3b3;
+  color: #3b1e0e;
+}
+
+.boton-vaciar:hover {
+  background-color: #ff9999;
+}
+
+.boton-confirmar {
+  background-color: #a02121;
+  color: white;
+}
+
+.boton-confirmar:hover {
+  background-color: #8a1a1a;
+}
+
+.carrito-vacio {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #6c4c2a;
+  padding: 2rem;
+}
+
+/* --- Estilos para Descuento y Total --- */
+
+.descuento-form {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.descuento-input {
+  flex-grow: 1; /* Ocupa el espacio disponible */
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  color: #4b1e0b;
+}
+
+.descuento-input::placeholder {
+  color: #a09a96; /* Un color gris/beige para el placeholder */
+  opacity: 1; /* Firefox necesita esto */
+}
+
+.btn-aplicar {
+  padding: 10px 15px;
+  background-color: #4b1e0b; /* Marrón oscuro */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-aplicar:hover {
+  background-color: #6a3a2a;
+}
+
+.descuento-mensaje {
+  margin-top: 10px;
+  font-size: 0.9rem;
+}
+
+.descuento-mensaje.exito {
+  color: green;
+}
+
+.descuento-mensaje.error {
+  color: red;
+}
+
+.resumen-total {
+  margin-top: 20px;
+  text-align: right;
+  color: #4b1e0b;
+}
+
+.resumen-total p,
+.resumen-total h3 {
+  margin: 8px 0;
+  font-size: 1.1rem;
+}
+
+.resumen-total h3 {
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+
+.resumen-total span {
+  display: inline-block;
+  min-width: 120px; /* Alinea los números */
+  text-align: right;
+}
+
+.resumen-total .descuento-aplicado {
+  color: #c15c2e; /* Naranja */
+  font-weight: bold;
+}
+
+.resumen-total hr {
+  margin: 10px 0;
+  border-color: #e0d5c9;
+}
+
+.mensaje-error-confirmacion {
+  color: #d9534f; /* Un color rojo de error */
+  font-weight: bold;
+  margin-top: 15px;
+  text-align: center;
+}

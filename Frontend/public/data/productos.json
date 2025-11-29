@@ -1,0 +1,406 @@
+[
+{
+
+"id": 1,
+
+"nombre": "Torta Selva Negra",
+
+"descripcion": "Bizcocho negro, crema chantilly y mermelada de guinda ácida.",
+
+"imagen": "assets/img/bizcochuelo.jpg",
+
+"categoriaId": 1,
+
+"tamaños": [
+
+{ "personas": 12, "precio": 42000, "nutricion": { "peso": "2.2 kg", "energia": "6480 kcal", "porcion": "540 kcal", "proteinas": "7 g", "grasas": "29 g", "carbohidratos": "63 g", "azucares": "45 g", "sodio": "320 mg" }},
+
+{ "personas": 16, "precio": 56000, "nutricion": { "peso": "2.9 kg", "energia": "8640 kcal", "porcion": "540 kcal", "proteinas": "7 g", "grasas": "29 g", "carbohidratos": "63 g", "azucares": "45 g", "sodio": "320 mg" }},
+
+{ "personas": 20, "precio": 70000, "nutricion": { "peso": "3.6 kg", "energia": "10800 kcal", "porcion": "540 kcal", "proteinas": "7 g", "grasas": "29 g", "carbohidratos": "63 g", "azucares": "45 g", "sodio": "320 mg" }},
+
+{ "personas": 25, "precio": 87500, "nutricion": { "peso": "4.5 kg", "energia": "13500 kcal", "porcion": "540 kcal", "proteinas": "7 g", "grasas": "29 g", "carbohidratos": "63 g", "azucares": "45 g", "sodio": "320 mg" }},
+
+{ "personas": 30, "precio": 105000, "nutricion": { "peso": "5.4 kg", "energia": "16200 kcal", "porcion": "540 kcal", "proteinas": "7 g", "grasas": "29 g", "carbohidratos": "63 g", "azucares": "45 g", "sodio": "320 mg" }},
+
+{ "personas": 40, "precio": 119550, "nutricion": { "peso": "7.2 kg", "energia": "21600 kcal", "porcion": "540 kcal", "proteinas": "7 g", "grasas": "29 g", "carbohidratos": "63 g", "azucares": "45 g", "sodio": "320 mg" }},
+
+{ "personas": 50, "precio": 134100, "nutricion": { "peso": "9.0 kg", "energia": "27000 kcal", "porcion": "540 kcal", "proteinas": "7 g", "grasas": "29 g", "carbohidratos": "63 g", "azucares": "45 g", "sodio": "320 mg" }}
+
+],
+
+"notas": "*Valores aproximados. Contiene gluten, huevo, leche, nueces y derivados."
+
+},
+
+{
+
+"id": 2,
+
+"nombre": "Torta Tres Leches",
+
+"descripcion": "Bizcocho blanco bañado en mezcla de leches, cubierto con merengue y crema chantilly.",
+
+"imagen": "assets/img/torta-tres-leches.jpeg",
+
+"categoriaId": 1,
+
+"tamaños": [
+
+{ "personas": 12, "precio": 42000, "nutricion": { "peso": "2.2 kg", "energia": "6480 kcal", "porcion": "540 kcal", "proteinas": "7 g", "grasas": "29 g", "carbohidratos": "63 g", "azucares": "45 g", "sodio": "320 mg" }},
+
+{ "personas": 16, "precio": 56000, "nutricion": { "peso": "2.9 kg", "energia": "8640 kcal", "porcion": "540 kcal", "proteinas": "7 g", "grasas": "29 g", "carbohidratos": "63 g", "azucares": "45 g", "sodio": "320 mg" }},
+
+{ "personas": 20, "precio": 70000, "nutricion": { "peso": "3.6 kg", "energia": "10800 kcal", "porcion": "540 kcal", "proteinas": "7 g", "grasas": "29 g", "carbohidratos": "63 g", "azucares": "45 g", "sodio": "320 mg" }},
+
+{ "personas": 25, "precio": 87500, "nutricion": { "peso": "4.5 kg", "energia": "13500 kcal", "porcion": "540 kcal", "proteinas": "7 g", "grasas": "29 g", "carbohidratos": "63 g", "azucares": "45 g", "sodio": "320 mg" }},
+
+{ "personas": 30, "precio": 105000, "nutricion": { "peso": "5.4 kg", "energia": "16200 kcal", "porcion": "540 kcal", "proteinas": "7 g", "grasas": "29 g", "carbohidratos": "63 g", "azucares": "45 g", "sodio": "320 mg" }},
+
+{ "personas": 40, "precio": 119550, "nutricion": { "peso": "7.2 kg", "energia": "21600 kcal", "porcion": "540 kcal", "proteinas": "7 g", "grasas": "29 g", "carbohidratos": "63 g", "azucares": "45 g", "sodio": "320 mg" }},
+
+{ "personas": 50, "precio": 134100, "nutricion": { "peso": "9.0 kg", "energia": "27000 kcal", "porcion": "540 kcal", "proteinas": "7 g", "grasas": "29 g", "carbohidratos": "63 g", "azucares": "45 g", "sodio": "320 mg" }}
+
+],
+
+"notas": "*Valores aproximados. Contiene gluten, huevo, leche y derivados."
+
+},
+
+{
+
+"id": 3,
+
+"nombre": "Brazo de Reina Lúcuma",
+
+"descripcion": "Bizcochuelo blanco con crema de lúcuma, cubierto con chocolate y cereales grageados.",
+
+"imagen": "assets/img/brazo-lucuma.jpg",
+
+"categoriaId": 2,
+
+"tamaños": [
+
+{ "descripcion": "Tamaño único", "precio": 42000, "nutricion": { "peso": "1.8 kg", "energia": "5900 kcal", "porcion": "490 kcal", "proteinas": "6 g", "grasas": "28 g", "carbohidratos": "58 g", "azucares": "42 g", "sodio": "280 mg" }}
+
+],
+
+"notas": "*Valores aproximados. Contiene gluten, huevo, leche y derivados."
+
+},
+
+{
+
+"id": 4,
+
+"nombre": "Brazo de Reina Mocca",
+
+"descripcion": "Bizcochuelo blanco con crema mocca, licor de café y praliné de almendras.",
+
+"imagen": "assets/img/brazo-mocca.jpg",
+
+"categoriaId": 2,
+
+"tamaños": [
+
+{ "descripcion": "Tamaño único", "precio": 42000, "nutricion": { "peso": "1.8 kg", "energia": "6050 kcal", "porcion": "505 kcal", "proteinas": "6 g", "grasas": "29 g", "carbohidratos": "60 g", "azucares": "43 g", "sodio": "285 mg" }}
+
+],
+
+"notas": "*Valores aproximados. Contiene gluten, huevo, leche, café y nueces."
+
+}
+
+,
+
+{
+
+"id": 5,
+
+"nombre": "Torta Hojarasca Manjar Chantilly Nuez",
+
+"descripcion": "Capas de hojarasca con manjar, crema chantilly y trozos de nuez.",
+
+"imagen": "assets/img/torta-hojarasca-nuez.jpg",
+
+"categoriaId": 3,
+
+"tamaños": [
+
+{ "personas": 12, "precio": 42000, "nutricion": { "peso": "2.2 kg", "energia": "6480 kcal", "porcion": "540 kcal", "proteinas": "7 g", "grasas": "29 g", "carbohidratos": "63 g", "azucares": "45 g", "sodio": "320 mg" }},
+
+{ "personas": 16, "precio": 56000, "nutricion": { "peso": "2.9 kg", "energia": "8640 kcal", "porcion": "540 kcal", "proteinas": "7 g", "grasas": "29 g", "carbohidratos": "63 g", "azucares": "45 g", "sodio": "320 mg" }},
+
+{ "personas": 20, "precio": 70000, "nutricion": { "peso": "3.6 kg", "energia": "10800 kcal", "porcion": "540 kcal", "proteinas": "7 g", "grasas": "29 g", "carbohidratos": "63 g", "azucares": "45 g", "sodio": "320 mg" }},
+
+{ "personas": 25, "precio": 87500, "nutricion": { "peso": "4.5 kg", "energia": "13500 kcal", "porcion": "540 kcal", "proteinas": "7 g", "grasas": "29 g", "carbohidratos": "63 g", "azucares": "45 g", "sodio": "320 mg" }},
+
+{ "personas": 30, "precio": 105000, "nutricion": { "peso": "5.4 kg", "energia": "16200 kcal", "porcion": "540 kcal", "proteinas": "7 g", "grasas": "29 g", "carbohidratos": "63 g", "azucares": "45 g", "sodio": "320 mg" }},
+
+{ "personas": 40, "precio": 119550, "nutricion": { "peso": "7.2 kg", "energia": "21600 kcal", "porcion": "540 kcal", "proteinas": "7 g", "grasas": "29 g", "carbohidratos": "63 g", "azucares": "45 g", "sodio": "320 mg" }},
+
+{ "personas": 50, "precio": 134100, "nutricion": { "peso": "9.0 kg", "energia": "27000 kcal", "porcion": "540 kcal", "proteinas": "7 g", "grasas": "29 g", "carbohidratos": "63 g", "azucares": "45 g", "sodio": "320 mg" }}
+
+],
+
+"notas": "*Contiene gluten, huevo, leche y nueces."
+
+},
+
+{
+
+"id": 6,
+
+"nombre": "Torta Hojarasca Manjar con Frambuesa",
+
+"descripcion": "Torta de hojarasca rellena con manjar y mermelada natural de frambuesa.",
+
+"imagen": "assets/img/torta-hojarasca-frambuesa.jpg",
+
+"categoriaId": 3,
+
+"tamaños": [
+
+{ "personas": 12, "precio": 42000, "nutricion": { "peso": "2.2 kg", "energia": "6480 kcal", "porcion": "540 kcal", "proteinas": "7 g", "grasas": "29 g", "carbohidratos": "63 g", "azucares": "45 g", "sodio": "320 mg" }},
+
+{ "personas": 16, "precio": 56000, "nutricion": { "peso": "2.9 kg", "energia": "8640 kcal", "porcion": "540 kcal", "proteinas": "7 g", "grasas": "29 g", "carbohidratos": "63 g", "azucares": "45 g", "sodio": "320 mg" }},
+
+{ "personas": 20, "precio": 70000, "nutricion": { "peso": "3.6 kg", "energia": "10800 kcal", "porcion": "540 kcal", "proteinas": "7 g", "grasas": "29 g", "carbohidratos": "63 g", "azucares": "45 g", "sodio": "320 mg" }},
+
+{ "personas": 25, "precio": 87500, "nutricion": { "peso": "4.5 kg", "energia": "13500 kcal", "porcion": "540 kcal", "proteinas": "7 g", "grasas": "29 g", "carbohidratos": "63 g", "azucares": "45 g", "sodio": "320 mg" }},
+
+{ "personas": 30, "precio": 105000, "nutricion": { "peso": "5.4 kg", "energia": "16200 kcal", "porcion": "540 kcal", "proteinas": "7 g", "grasas": "29 g", "carbohidratos": "63 g", "azucares": "45 g", "sodio": "320 mg" }},
+
+{ "personas": 40, "precio": 119550, "nutricion": { "peso": "7.2 kg", "energia": "21600 kcal", "porcion": "540 kcal", "proteinas": "7 g", "grasas": "29 g", "carbohidratos": "63 g", "azucares": "45 g", "sodio": "320 mg" }},
+
+{ "personas": 50, "precio": 134100, "nutricion": { "peso": "9.0 kg", "energia": "27000 kcal", "porcion": "540 kcal", "proteinas": "7 g", "grasas": "29 g", "carbohidratos": "63 g", "azucares": "45 g", "sodio": "320 mg" }}
+
+],
+
+"notas": "*Contiene gluten, huevo, leche y derivados."
+
+},
+
+{
+
+"id": 7,
+
+"nombre": "Kuchen de Frutilla",
+
+"descripcion": "Kuchen de frutillas frescas con crema pastelera y masa artesanal.",
+
+"imagen": "assets/img/kuchen-frutilla.jpg",
+
+"categoriaId": 4,
+
+"tamaños": [
+
+{ "descripcion": "Tamaño único", "precio": 35500, "nutricion": { "peso": "1.6 kg", "energia": "5200 kcal", "porcion": "430 kcal", "proteinas": "6 g", "grasas": "26 g", "carbohidratos": "52 g", "azucares": "38 g", "sodio": "290 mg" }}
+
+],
+
+"notas": "*Contiene gluten, huevo, leche y derivados."
+
+},
+
+{
+
+"id": 8,
+
+"nombre": "Kuchen de Manzana Streusel",
+
+"descripcion": "Kuchen de manzanas caramelizadas con miga streusel crocante.",
+
+"imagen": "assets/img/kuchen-manzana.jpg",
+
+"categoriaId": 4,
+
+"tamaños": [
+
+{ "descripcion": "Tamaño único", "precio": 35500, "nutricion": { "peso": "1.6 kg", "energia": "5150 kcal", "porcion": "430 kcal", "proteinas": "5 g", "grasas": "25 g", "carbohidratos": "53 g", "azucares": "39 g", "sodio": "280 mg" }}
+
+],
+
+"notas": "*Contiene gluten, huevo, leche y derivados."
+
+},
+
+{
+
+"id": 9,
+
+"nombre": "Chilenitos (Docena)",
+
+"descripcion": "Pastelitos individuales rellenos con manjar y espolvoreados con azúcar flor.",
+
+"imagen": "assets/img/chilenitos.jpg",
+
+"categoriaId": 5,
+
+"tamaños": [
+
+{ "descripcion": "Docena", "precio": 12000, "nutricion": { "peso": "0.6 kg", "energia": "2400 kcal", "porcion": "200 kcal", "proteinas": "3 g", "grasas": "10 g", "carbohidratos": "25 g", "azucares": "18 g", "sodio": "150 mg" }}
+
+],
+
+"notas": "*Contiene gluten, huevo, leche y derivados."
+
+},
+
+{
+
+"id": 10,
+
+"nombre": "Cachitos (Docena)",
+
+"descripcion": "Masas rellenas con manjar, horneadas hasta dorar y espolvoreadas con azúcar flor.",
+
+"imagen": "assets/img/cachitos.jpg",
+
+"categoriaId": 5,
+
+"tamaños": [
+
+{ "descripcion": "Docena", "precio": 12000, "nutricion": { "peso": "0.65 kg", "energia": "2600 kcal", "porcion": "215 kcal", "proteinas": "3 g", "grasas": "11 g", "carbohidratos": "26 g", "azucares": "19 g", "sodio": "160 mg" }}
+
+],
+
+"notas": "*Contiene gluten, huevo, leche y derivados."
+
+},
+
+{
+
+"id": 11,
+
+"nombre": "Cheesecake de Maracuyá",
+
+"descripcion": "Queso crema horneado con mermelada de maracuyá y crocante de almendras.",
+
+"imagen": "assets/img/cheesecake-maracuya.jpg",
+
+"categoriaId": 6,
+
+"tamaños": [
+
+{ "descripcion": "Tamaño único", "precio": 35000, "nutricion": { "peso": "1.9 kg", "energia": "5900 kcal", "porcion": "490 kcal", "proteinas": "7 g", "grasas": "27 g", "carbohidratos": "55 g", "azucares": "41 g", "sodio": "270 mg" }}
+
+],
+
+"notas": "*Contiene gluten, huevo, leche y frutos secos."
+
+},
+
+{
+
+"id": 12,
+
+"nombre": "Cheesecake de Frambuesa",
+
+"descripcion": "Queso crema horneado con frambuesas naturales y base de galletas.",
+
+"imagen": "assets/img/cheesecake-frambuesa.jpg",
+
+"categoriaId": 6,
+
+"tamaños": [
+
+{ "descripcion": "Tamaño único", "precio": 35000, "nutricion": { "peso": "1.9 kg", "energia": "5800 kcal", "porcion": "480 kcal", "proteinas": "7 g", "grasas": "26 g", "carbohidratos": "56 g", "azucares": "42 g", "sodio": "265 mg" }}
+
+],
+
+"notas": "*Contiene gluten, huevo, leche y frutos secos."
+
+},
+
+{
+
+"id": 13,
+
+"nombre": "Berlín Manjar",
+
+"descripcion": "Berlín artesanal relleno con manjar y espolvoreado con azúcar flor.",
+
+"imagen": "assets/img/berlin-manjar.jpg",
+
+"categoriaId": 7,
+
+"tamaños": [
+
+{ "descripcion": "Unidad", "precio": 2800, "nutricion": { "peso": "120 g", "energia": "420 kcal", "porcion": "420 kcal", "proteinas": "6 g", "grasas": "20 g", "carbohidratos": "48 g", "azucares": "32 g", "sodio": "190 mg" }}
+
+],
+
+"notas": "*Contiene gluten, huevo, leche."
+
+},
+
+{
+
+"id": 14,
+
+"nombre": "Galletas Lengua de Gato con Chocolate",
+
+"descripcion": "Crujientes galletas largas bañadas parcialmente en chocolate.",
+
+"imagen": "assets/img/galletas-lengua-gato.jpg",
+
+"categoriaId": 7,
+
+"tamaños": [
+
+{ "descripcion": "100 gramos", "precio": 5000, "nutricion": { "peso": "100 g", "energia": "520 kcal", "porcion": "520 kcal", "proteinas": "5 g", "grasas": "29 g", "carbohidratos": "58 g", "azucares": "37 g", "sodio": "160 mg" }},
+
+{ "descripcion": "200 gramos", "precio": 9000, "nutricion": { "peso": "200 g", "energia": "1040 kcal", "porcion": "520 kcal", "proteinas": "5 g", "grasas": "29 g", "carbohidratos": "58 g", "azucares": "37 g", "sodio": "160 mg" }}
+
+],
+
+"notas": "*Contiene gluten, huevo, leche."
+
+},
+
+{
+
+"id": 15,
+
+"nombre": "Pan de Pascua de Frutos Secos",
+
+"descripcion": "Queque tradicional con frutos secos, nueces, almendras y cáscaras confitadas.",
+
+"imagen": "assets/img/pan-de-pascua.jpg",
+
+"categoriaId": 8,
+
+"tamaños": [
+
+{ "descripcion": "1 kg", "precio": 15000, "nutricion": { "peso": "1 kg", "energia": "4200 kcal", "porcion": "350 kcal", "proteinas": "6 g", "grasas": "18 g", "carbohidratos": "47 g", "azucares": "31 g", "sodio": "230 mg" }}
+
+],
+
+"notas": "*Contiene gluten, huevo, leche y frutos secos."
+
+},
+
+{
+
+"id": 16,
+
+"nombre": "Torta de Cuchuflís para Cumpleaños",
+
+"descripcion": "Torta de cuchuflís artesanales rellenos con manjar y base de merengue.",
+
+"imagen": "assets/img/torta-cuchuflis.jpg",
+
+"categoriaId": 8,
+
+"tamaños": [
+
+{ "descripcion": "Tamaño único", "precio": 90200, "nutricion": { "peso": "3.2 kg", "energia": "9300 kcal", "porcion": "580 kcal", "proteinas": "8 g", "grasas": "30 g", "carbohidratos": "62 g", "azucares": "44 g", "sodio": "310 mg" }}
+
+],
+
+"notas": "*Contiene gluten, huevo, leche y derivados."
+
+}
+
+]

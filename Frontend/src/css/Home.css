@@ -1,0 +1,139 @@
+/* --- HOME GENERAL --- */
+.home-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3rem;
+  padding: 2rem 1rem;
+  width: 100%;
+  color: #2e2e2e;
+}
+
+/* --- SECCIÓN INTRO (Hero) --- */
+.seccion-intro {
+  text-align: center;
+  color: #4b1e0e;
+  padding: 4rem 2rem;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 1.5rem;
+  max-width: 900px;
+  margin: 0 auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.seccion-intro h1 {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: 2.2rem;
+  margin-bottom: 0.8rem;
+}
+
+.seccion-intro p {
+  font-size: 1.1rem;
+  color: #5e2a17;
+}
+
+/* --- SECCIÓN PRODUCTOS --- */
+.seccion-productos {
+  max-width: 1100px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 1.5rem;
+  padding: 2.5rem 1.5rem;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+}
+
+.seccion-productos h2 {
+  text-align: center;
+  color: #4b1e0e;
+  margin-bottom: 1.5rem;
+}
+
+.producto-item {
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.producto-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* --- SECCIÓN REGISTRO --- */
+.seccion-registro {
+  text-align: center;
+  background: rgba(255, 250, 245, 0.85);
+  border-radius: 1.5rem;
+  padding: 3rem 1.5rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.seccion-registro h3 {
+  color: #4b1e0e;
+  margin-bottom: 1rem;
+}
+
+/* --- SECCIÓN GARANTÍAS --- */
+.seccion-garantias {
+  max-width: 1000px;
+  background: rgba(255, 255, 255, 0.75);
+  border-radius: 1.5rem;
+  padding: 2.5rem 1rem;
+  margin: 0 auto 2rem;
+}
+
+.seccion-garantias h4 {
+  text-align: center;
+  color: #4b1e0e;
+  margin-bottom: 2rem;
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 992px) {
+  .home-container {
+    padding: 1.5rem;
+    gap: 2rem;
+  }
+
+  .seccion-intro {
+    padding: 3rem 1rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .seccion-intro h1 {
+    font-size: 1.7rem;
+  }
+
+  .seccion-productos,
+  .seccion-registro,
+  .seccion-garantias {
+    padding: 1.5rem;
+  }
+}
+
+/* --- Arreglo para sobrescribir Bootstrap --- */
+
+/* 1. Arreglo para el botón "¡Regístrate!" */
+/* Usamos .intro-button .btn-primary para ser más específicos */
+.intro-button .btn-primary {
+  background-color: #c15c2e !important; /* Tu color naranja/terracota */
+  border-color: #c15c2e !important;
+  color: #ffffff !important; /* Texto blanco */
+}
+
+/* 2. Estilo hover para el botón (opcional pero recomendado) */
+.intro-button .btn-primary:hover {
+  background-color: #a04a23 !important; /* Un tono más oscuro */
+  border-color: #a04a23 !important;
+  color: #ffffff !important;
+}
+
+/* 3. Arreglo para el link "aquí" de la sección de registro */
+.registrate-aqui a {
+  /* Asumo que este es el color rosa que tenías */
+  color: #e75480 !important; 
+  text-decoration: underline !important;
+}

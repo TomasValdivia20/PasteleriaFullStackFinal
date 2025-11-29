@@ -1,0 +1,50 @@
+[
+  {
+    "id": 1,
+    "nombre": "Bizcochuelo",
+    "descripcion": "Deliciosas tortas elaboradas con suaves capas de bizcochuelo y diversos rellenos.",
+    "imagen": "assets/img/bizcochuelo.jpg"
+  },
+  {
+    "id": 2,
+    "nombre": "Brazo de Reina",
+    "descripcion": "Rollo tradicional de bizcochuelo relleno con cremas artesanales y decoraciones únicas.",
+    "imagen": "assets/img/brazo-de-reina.jpg"
+  },
+  {
+    "id": 3,
+    "nombre": "Hojarasca",
+    "descripcion": "Crujientes capas de hojarasca con manjar, crema y mermeladas caseras.",
+    "imagen": "assets/img/hojarasca.jpg"
+  },
+  {
+    "id": 4,
+    "nombre": "Kuchen",
+    "descripcion": "Tartas de fruta y crema inspiradas en la repostería alemana del sur de Chile.",
+    "imagen": "assets/img/kuchen.jpg"
+  },
+  {
+    "id": 5,
+    "nombre": "Dulces chilenos",
+    "descripcion": "Pastelitos típicos chilenos elaborados de manera artesanal, generalmente con manjar.",
+    "imagen": "assets/img/dulces-chilenos.jpg"
+  },
+  {
+    "id": 6,
+    "nombre": "Cheesecake",
+    "descripcion": "Suaves cheesecakes horneados con coberturas de frutas naturales.",
+    "imagen": "assets/img/cheesecake.jpg"
+  },
+  {
+    "id": 7,
+    "nombre": "Masas y Galletas",
+    "descripcion": "Galletas y masas dulces ideales para acompañar con té o café.",
+    "imagen": "assets/img/masas-galletas.jpg"
+  },
+  {
+    "id": 8,
+    "nombre": "Eventos y Celebraciones",
+    "descripcion": "Productos especiales para cumpleaños, festividades y celebraciones familiares.",
+    "imagen": "assets/img/eventos-celebraciones.jpg"
+  }
+]

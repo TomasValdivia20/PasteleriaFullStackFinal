@@ -1,0 +1,60 @@
+[
+  {
+    "id": 1,
+    "titulo": "Cristalización y Temperado de Chocolate: De la Teoría a la Práctica en la Cocina Profesional",
+    "fecha": "2025-10-16",
+    "imagen": "/assets/img/Chocolate-unsplash.jpg",
+    "descripcion": "Guía paso a paso sobre las diferentes curvas de temperado y la ciencia detrás del brillo y el crack perfecto del chocolate.",
+    "slug": "cristalizacion-y-temperado-de-chocolate"
+  },
+  {
+    "id": 2,
+    "titulo": "El Secreto Está en la Ciencia: La Química del Batido Cremoso",
+    "fecha": "2025-10-12",
+    "imagen": "/assets/img/BatidoCremoso-unsplash.jpg",
+    "descripcion": "Explicación detallada de la emulsión y la incorporación de aire al cremar mantequilla y azúcar, fundamental para masas como cookies y cakes.",
+    "slug": "el-secreto-esta-en-la-ciencia-la-quimica-del-batido-cremoso"
+  },
+  {
+    "id": 3,
+    "titulo": "De Alumno a Emprendedor: 5 Errores Comunes al Abrir tu Primera Pastelería",
+    "fecha": "2025-08-10",
+    "imagen": "../assets/img/adrien-olichon-4Mtk0mdqQ-I-unsplash.jpg",
+    "descripcion": "Consejos sobre costos, marketing, branding y gestión de personal, más allá de la habilidad técnica."
+  },
+  {
+    "id": 4,
+    "titulo": "Más Allá de la Decoración: ¿Qué Busca un Chef Pastelero en un Commis o Ayudante?",
+    "fecha": "2025-07-19",
+    "imagen": "/assets/img/MasAllaDeLaDecoracion-unsplash.jpg",
+    "descripcion": "Habilidades valoradas en la industria: puntualidad, organización, manejo de estrés, limpieza, trabajo en equipo."
+  },
+  {
+    "id": 5,
+    "titulo": "La Repostería Sostenible: Cómo Reducir el Desperdicio y Maximizar la Rentabilidad en la Producción",
+    "fecha": "2025-06-12",
+    "imagen": "/assets/img/Reposteria_Sostenible-unsplash.jpg",
+    "descripcion": "Estrategias para aprovechar recortes, subproductos y planificar compras en un entorno profesional."
+  },
+  {
+    "id": 6,
+    "titulo": "El Boom de la Repostería Vegana y Gluten-Free: ¿Oportunidad o Moda Pasajera?",
+    "fecha": "2025-05-15",
+    "imagen": "/assets/img/Reposteria_Vegana-unsplash.jpg",
+    "descripcion": "Exploración de sustitutos y cómo adaptar recetas clásicas a las nuevas demandas del mercado."
+  },
+  {
+    "id": 7,
+    "titulo": "Plating Avanzado: El Arte de Presentar Postres en Restaurantes de Alta Cocina",
+    "fecha": "2025-03-22",
+    "imagen": "/assets/img/Restaurantes_de_Alta_Cocina-unsplash.jpg",
+    "descripcion": "Consejos de diseño, color, texturas y alturas para el emplatado profesional."
+  },
+  {
+    "id": 8,
+    "titulo": "Entrevista a Ex Alumno o Profesional Destacado: Mi Primer Año en la Pastelería Internacional",
+    "fecha": "2025-02-25",
+    "imagen": "/assets/img/GastronomiaDuoc.jpg",
+    "descripcion": "Historia real para motivar e ilustrar los desafíos y recompensas del rubro."
+  }
+]

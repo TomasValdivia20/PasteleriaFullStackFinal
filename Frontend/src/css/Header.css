@@ -1,0 +1,150 @@
+/* === Contenedor general === */
+.header-container {
+  background-color: #5c2c06;
+  color: white;
+  font-family: 'Arial', sans-serif;
+  width: 100%;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+/* === Sección superior (logo + texto) === */
+.header-top {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 0;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.header-logo {
+  width: 70px;
+  height: 70px;
+  object-fit: contain;
+  border-radius: 50%;
+  background-color: #fff;
+  padding: 5px;
+}
+
+.header-title span {
+  display: block;
+  font-size: 0.9rem;
+  color: #ffb347;
+  letter-spacing: 1px;
+  text-align: left;
+}
+
+.header-title h1 {
+  font-family: 'Pacifico', cursive;
+  font-size: 2rem;
+  margin: 0;
+  color: #fff;
+  text-align: left;
+}
+
+/* === Navbar === */
+.header-navbar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #3a1e04;
+  padding: 10px 0;
+  flex-wrap: wrap;
+}
+
+.header-navbar ul {
+  list-style: none;
+  display: flex;
+  gap: 1.2rem;
+  margin: 0;
+  padding: 0;
+}
+
+.header-navbar li {
+  display: inline;
+}
+
+.header-navbar a {
+  text-decoration: none;
+  color: #fff;
+  font-weight: bold;
+  transition: color 0.3s;
+}
+
+.header-navbar a:hover {
+  color: #ffb347;
+}
+
+/* === Carrito === */
+.header-cart {
+  margin-left: 1.5rem;
+}
+
+.cart-link {
+  color: #ffb347;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.cart-link:hover {
+  color: white;
+}
+
+/* === Responsivo === */
+@media (max-width: 768px) {
+  .header-top {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .logo-container {
+    flex-direction: column;
+  }
+
+  .header-navbar ul {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .header-cart {
+    margin-top: 10px;
+  }
+}
+
+.header-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+}
+
+/* Agrega un margen superior al contenido para que no se tape por el header */
+body, .main-content {
+  padding-top: 150px; /* ajusta según el alto del header */
+}
+
+.logout-btn {
+  background: transparent;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.logout-btn:hover {
+  color: #ffd700;
+}
+
+.header-greeting {
+  color: #fff;
+  font-weight: 500;
+  font-size: 1rem;
+  margin-right: 20px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}

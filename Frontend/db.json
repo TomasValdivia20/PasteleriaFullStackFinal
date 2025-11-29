@@ -1,0 +1,43 @@
+{
+  "usuarios": [
+    {
+      "id": "e712",
+      "rut": "11111111-1",
+      "nombre": "aaaaaaaa",
+      "correo": "bbbbbbbb",
+      "telefono": "eeeeeeeee",
+      "direccion": "rrrrrrrrrr",
+      "contrasena": "rrrrrrrrr"
+    },
+    {
+      "id": "aed3",
+      "rut": "11111111-1",
+      "nombre": "asdas",
+      "apellido": "asdasd",
+      "correo": "asdasd@gmail.com",
+      "region": "asdasdasd",
+      "direccion": "asdasdasddas",
+      "contrasena": "asdasdasdasdasd"
+    },
+    {
+      "id": "9746",
+      "rut": "12345678-9",
+      "nombre": "Juan Carlos",
+      "apellido": "Bodoque",
+      "correo": "juancarlosbodoque@gmail.com",
+      "region": "Región Metropolitana",
+      "direccion": "Antonio Varas 311",
+      "contrasena": "juancarlosbodoque"
+    },
+    {
+      "id": "4cc9",
+      "rut": "11111111-1",
+      "nombre": "Tulio",
+      "apellido": "Triviño",
+      "correo": "tulio@gmail.com",
+      "region": "Región Metropolitana",
+      "direccion": "Providencia 123",
+      "contrasena": "tuliotriviño"
+    }
+  ]
+}

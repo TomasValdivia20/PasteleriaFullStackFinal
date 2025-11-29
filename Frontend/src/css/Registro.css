@@ -1,0 +1,84 @@
+.registro-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 85vh;
+  background:#caa472;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  padding: 2rem;
+}
+
+.registro-form {
+  background-color: rgba(0, 0, 0, 0.904);
+  padding: 2rem 3rem;
+  border-radius: 20px;
+  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 450px;
+  display: flex;
+  flex-direction: column;
+}
+
+.registro-form h2 {
+  font-size: 2rem;
+  color: #ffffff;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.registro-form label {
+  font-weight: bold;
+  color: #ffffff;
+  margin-bottom: 0.3rem;
+}
+
+.registro-form input,
+.registro-form select {
+  margin-bottom: 1rem;
+  padding: 0.6rem;
+  border: 1px solid #caa472;
+  border-radius: 10px;
+  font-size: 1rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.registro-form button {
+  background-color: #6d3a13;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 0.8rem;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.registro-form button:hover {
+  background-color: #8b4e19;
+}
+
+.error {
+  color: #ffb3b3;
+  font-size: 0.9rem;
+  margin-top: -5px;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.mensaje {
+  margin-top: 15px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.mensaje-exito {
+  color: #4CAF50;
+}
+
+.mensaje-error {
+  color: #ff6b6b;
+}

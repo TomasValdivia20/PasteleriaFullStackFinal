@@ -1,0 +1,80 @@
+/* Pega esto en tu src/css/catalogo.css (reemplazando todo) */
+
+.catalogo-container {
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.titulo-seccion {
+  font-size: 2rem;
+  color: #4b1e0b;
+  margin-bottom: 30px;
+  font-weight: 700;
+}
+
+/* Reglas de especificidad (ahora funcionarán) */
+.catalogo-container .categorias-grid,
+.catalogo-container .productos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  justify-content: center;
+}
+
+.catalogo-container .categoria-card,
+.catalogo-container .producto-card {
+  background-color: #fff8f2;
+  border-radius: 12px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+  text-decoration: none;
+  color: #333;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  overflow: hidden; /* Clave 1 */
+  padding: 0;       /* Clave 2 */
+}
+
+.categoria-card:hover,
+.producto-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+.catalogo-container .categoria-imagen,
+.catalogo-container .producto-imagen {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 12px 12px 0 0;
+}
+
+.categoria-nombre,
+.producto-nombre {
+  font-size: 1.2rem;
+  margin: 10px 0;
+  color: #4b1e0b;
+}
+
+.producto-precio {
+  color: #c15c2e;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.categoria-info {
+  /* Usamos el color de fondo de las tarjetas pero con transparencia */
+  background-color: rgba(255, 248, 242, 0.9); /* #fff8f2 con 90% opacidad */
+  padding: 2rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  display: inline-block; /* Para que el fondo no ocupe todo el ancho */
+  max-width: 800px;
+}
+
+.catalogo-container .categoria-descripcion {
+  font-size: 1.1rem;
+  color: #4b1e0b; /* Un color oscuro para mejor lectura */
+  margin: 0; /* Quitamos márgenes extra */
+  font-family: "Lato", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}

@@ -1,0 +1,47 @@
+.resumen-compra {
+  margin-top: 2rem;
+  text-align: left; /* Alineamos la tabla a la izquierda */
+  color: #4b1e0b; /* Color oscuro para el texto */
+}
+
+.resumen-tabla {
+  width: 100%;
+  margin-top: 1rem;
+  border-collapse: collapse; /* Bordes limpios */
+  background-color: #ffffff; /* Fondo blanco para la tabla */
+}
+
+.resumen-tabla th,
+.resumen-tabla td {
+  border: 1px solid #ddd;
+  padding: 0.75rem;
+  vertical-align: middle;
+}
+
+.resumen-tabla th {
+  background-color: #f7e9db; /* Un fondo beige claro para los encabezados */
+}
+
+.resumen-tabla tfoot {
+  font-size: 1.2rem;
+}
+
+.resumen-tabla tfoot td {
+  text-align: right;
+}
+
+/* Para que el total ocupe todo el ancho */
+.resumen-tabla tfoot td:first-child {
+  text-align: right;
+}
+
+
+.resumen-tabla .descuento-aplicado td {
+  color: #c15c2e;
+  font-weight: bold;
+}
+
+.resumen-tabla .total-final {
+  font-size: 1.2rem;
+  background-color: #f7e9db;
+}
