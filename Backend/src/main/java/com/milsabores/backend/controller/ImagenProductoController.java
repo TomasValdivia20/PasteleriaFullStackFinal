@@ -15,9 +15,13 @@ import java.util.List;
 
 /**
  * Controlador REST para gestión de Imágenes de Productos en Supabase Storage
+ * 
+ * CORS: Permite peticiones desde cualquier origen (API pública)
+ * allowCredentials="false" para compatibilidad con origins="*"
  */
 @RestController
 @RequestMapping("/api/productos/{productoId}/imagenes")
+@CrossOrigin(origins = "*", allowCredentials = "false")
 public class ImagenProductoController {
     
     private static final Logger logger = LoggerFactory.getLogger(ImagenProductoController.class);

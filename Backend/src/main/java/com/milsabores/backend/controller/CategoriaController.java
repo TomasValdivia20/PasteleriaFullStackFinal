@@ -15,9 +15,13 @@ import java.util.List;
 /**
  * Controlador REST para gestión de Categorías
  * Capa de presentación - MVC Pattern
+ * 
+ * CORS: Permite peticiones desde cualquier origen (API pública)
+ * allowCredentials="false" para compatibilidad con origins="*"
  */
 @RestController
 @RequestMapping("/api/categorias")
+@CrossOrigin(origins = "*", allowCredentials = "false")
 public class CategoriaController {
 
     private static final Logger logger = LoggerFactory.getLogger(CategoriaController.class);

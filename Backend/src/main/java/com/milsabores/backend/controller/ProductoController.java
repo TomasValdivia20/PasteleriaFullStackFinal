@@ -12,9 +12,13 @@ import java.util.List;
 /**
  * Controlador REST para gestión de Productos
  * Capa de presentación - MVC Pattern
+ * 
+ * CORS: Permite peticiones desde cualquier origen (API pública)
+ * allowCredentials="false" para compatibilidad con origins="*"
  */
 @RestController
 @RequestMapping("/api/productos")
+@CrossOrigin(origins = "*", allowCredentials = "false")
 public class ProductoController {
 
     private final ProductoService productoService;
