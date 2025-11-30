@@ -59,10 +59,20 @@ const ProductDetail = () => {
       return;
     }
 
+    // Prioridad: imagen principal de Supabase > imagen local
+    let imagenUrl = '/assets/img/product-thumb-1.png'; // placeholder
+    
+    if (producto.imagenes && producto.imagenes.length > 0) {
+      const imagenPrincipal = producto.imagenes.find(img => img.esPrincipal);
+      imagenUrl = imagenPrincipal ? imagenPrincipal.urlSupabase : producto.imagenes[0].urlSupabase;
+    } else if (producto.imagen) {
+      imagenUrl = producto.imagen;
+    }
+
     const itemCarrito = {
       id: producto.id,
       nombre: producto.nombre,
-      imagen: producto.imagen,
+      imagen: imagenUrl, // Usar URL de Supabase o fallback
       precio: tamanoSeleccionado.precio,
       varianteId: tamanoSeleccionado.id, // ID de la variante específica
       tamano: tamanoSeleccionado.nombre, // "12 personas", "16 personas", etc.
@@ -118,7 +128,29 @@ const ProductDetail = () => {
     <div className="producto-detalle">
       <div className="detalle-contenido">
         <div className="detalle-imagen">
-          <img src={producto.imagen} alt={producto.nombre} />
+          {producto.imagenes && producto.imagenes.length > 0 ? (
+            <>
+              <img 
+                src={producto.imagenes.find(img => img.esPrincipal)?.urlSupabase || producto.imagenes[0].urlSupabase} 
+                alt={producto.nombre} 
+              />
+              {/* Galería de imágenes adicionales */}
+              {producto.imagenes.length > 1 && (
+                <div className="galeria-imagenes">
+                  {producto.imagenes.map((img) => (
+                    <img 
+                      key={img.id} 
+                      src={img.urlSupabase} 
+                      alt={`${producto.nombre} - ${img.orden}`}
+                      className={img.esPrincipal ? 'miniatura activa' : 'miniatura'}
+                    />
+                  ))}
+                </div>
+              )}
+            </>
+          ) : (
+            <img src={producto.imagen || '/assets/img/product-thumb-1.png'} alt={producto.nombre} />
+          )}
         </div>
 
         <div className="detalle-info">

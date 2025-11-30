@@ -5,9 +5,20 @@ import placeholder from "../assets/img/product-thumb-1.png";
 export default function CartasProductos({ producto }) {
   const title = producto.nombre || producto.categoria || "Sin título";
   const description = producto.descripcion || "";
-  const imgSrc = productImages[producto.id] || producto.imagen || producto.imagenUrl || placeholder;
-
-  if (typeof window !== 'undefined') console.log('CartasProductos imgSrc:', imgSrc);
+  
+  // Prioridad: imagen principal de Supabase > imagen local > placeholder
+  let imgSrc = placeholder;
+  
+  if (producto.imagenes && producto.imagenes.length > 0) {
+    // Buscar imagen principal
+    const imagenPrincipal = producto.imagenes.find(img => img.esPrincipal);
+    imgSrc = imagenPrincipal ? imagenPrincipal.urlSupabase : producto.imagenes[0].urlSupabase;
+    console.log('✅ [CartasProductos] Usando imagen de Supabase:', imgSrc);
+  } else if (producto.imagen) {
+    // Fallback: imagen local legacy
+    imgSrc = productImages[producto.id] || producto.imagen;
+    console.log('⚠️  [CartasProductos] Usando imagen legacy:', imgSrc);
+  }
 
   return (
     <div className="CategoriaProductos-cartas">

@@ -22,7 +22,7 @@ public class Producto {
     @Column(length = 1000)
     private String descripcion;
 
-    private String imagen;
+    private String imagen; // DEPRECATED: Se mantiene por compatibilidad, usar imagenes[]
 
     private Integer precioBase;
 
@@ -32,6 +32,9 @@ public class Producto {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Categoria categoria;
 
-    @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<VarianteProducto> variantes;
+    
+    @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ImagenProducto> imagenes;
 }
