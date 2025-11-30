@@ -76,6 +76,10 @@ export default function Reportes() {
 									<div className="sb-nav-link-icon"><i className="fas fa-book-open" /></div>
 									Categoría
 								</Link>
+								<Link to="/backoffice/Contacto" className="nav-link">
+									<div className="sb-nav-link-icon"><i className="fas fa-envelope" /></div>
+									Contacto
+								</Link>
 								<Link to="/backoffice/Usuario" className="nav-link">
 									<div className="sb-nav-link-icon"><i className="fas fa-user" /></div>
 									Usuario

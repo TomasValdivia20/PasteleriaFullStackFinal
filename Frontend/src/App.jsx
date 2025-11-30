@@ -42,6 +42,7 @@ import BackofficeDashboard from "./Backoffice/Dashboard";
 import BackofficeOrdenes from "./Backoffice/Ordenes";
 import BackofficeProducto from "./Backoffice/Producto";
 import BackofficeCategoria from "./Backoffice/Categoria";
+import BackofficeContacto from "./Backoffice/ContactoBackoffice";
 import BackofficeUsuario from "./Backoffice/Usuario";
 import BackofficeReportes from "./Backoffice/Reportes";
 import BackofficePerfil from "./Backoffice/Perfil";
@@ -109,6 +110,14 @@ function App() {
                 element={
                   <ProtectedRoute requiredRole="ADMIN">
                     <BackofficeCategoria />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/backoffice/Contacto" 
+                element={
+                  <ProtectedRoute requiredRole="ADMIN">
+                    <BackofficeContacto />
                   </ProtectedRoute>
                 } 
               />

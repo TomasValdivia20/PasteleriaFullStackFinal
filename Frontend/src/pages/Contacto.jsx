@@ -3,7 +3,7 @@
 import "../css/Registro.css";
 import "../css/general.css";
 import { useState } from "react";
-// No se necesita importar validarFormulario ni dataRegiones
+import api from "../api";
 
 export default function Contacto() {
   // 1. Estado para los campos requeridos
@@ -49,7 +49,7 @@ const validarFormularioContacto = (data) => {
     return errores;
 };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setMensajeEnvio("");
     const erroresValidacion = validarFormularioContacto(formData);
@@ -62,14 +62,18 @@ const validarFormularioContacto = (data) => {
     setErrores({});
     setCargando(true);
 
-    // --- Lógica de Envío Simulada (Aquí se enviaría el email real) ---
-    // En un proyecto real, aquí usarías un servicio de backend (PHP, Node/Express)
-    // o un servicio de formularios como Formspree/EmailJS.
+    try {
+      // Enviar datos al backend
+      const response = await api.post('/contactos', {
+        nombre: formData.nombre,
+        email: formData.email,
+        telefono: formData.telefono,
+        mensaje: formData.mensaje
+      });
 
-    setTimeout(() => {
-      setCargando(false);
+      console.log('✅ Mensaje de contacto enviado:', response.data);
       
-      // Simulación de éxito
+      setCargando(false);
       setMensajeEnvio("✅ Mensaje enviado con éxito. Te responderemos pronto.");
       
       // Resetear campos después del envío
@@ -80,7 +84,15 @@ const validarFormularioContacto = (data) => {
         mensaje: "",
       });
 
-    }, 2000); // Simula el tiempo que tardaría el servidor en responder
+    } catch (error) {
+      console.error('❌ Error al enviar mensaje de contacto:', error);
+      setCargando(false);
+      
+      const mensajeError = error.response?.data?.message || 
+                          'Error al enviar el mensaje. Inténtalo nuevamente.';
+      
+      setMensajeEnvio(`❌ ${mensajeError}`);
+    }
   };
 
   return (
