@@ -108,7 +108,7 @@ export default function Dashboard() {
       setCharts(prev => ({ ...prev, area: areaChart }));
     }
 
-    // Gráfico de barras - Primer semestre
+    // Gráfico de barras - Últimos 6 meses
     const barCtx = document.getElementById("myBarChart");
     if (barCtx && ventasPrimerSemestre) {
       // Destruir gráfico anterior si existe
@@ -240,7 +240,7 @@ export default function Dashboard() {
                   <div className="col-xl-4 col-md-6">
                     <div className="card bg-success text-white mb-4">
                       <div className="card-body">
-                        <h5>Ventas Primer Semestre</h5>
+                        <h5>Ventas Últimos 6 Meses</h5>
                         <h3>{formatearMoneda(ventasPrimerSemestre.totalVendido)}</h3>
                         <small>{ventasPrimerSemestre.cantidadOrdenes} órdenes</small>
                       </div>
@@ -283,7 +283,7 @@ export default function Dashboard() {
                   <div className="card mb-4">
                     <div className="card-header">
                       <i className="fas fa-chart-bar me-1" />
-                      Ventas primer semestre
+                      Ventas Últimos 6 Meses
                     </div>
                     <div className="card-body">
                       {loading ? (

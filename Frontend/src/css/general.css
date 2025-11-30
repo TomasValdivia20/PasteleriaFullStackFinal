@@ -11461,3 +11461,142 @@ h1, h2, h3, .titulo, .header-top h1 {
     transform: rotate(360deg);
   }
 }
+
+/* ==================================
+   BACKOFFICE OVERRIDES
+   ================================== */
+
+/* Asegurar que backoffice ocupe todo el viewport sin scroll innecesario */
+.backoffice-page {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+/* Layout sidebar del backoffice */
+#layoutSidenav {
+  display: flex;
+  min-height: 100vh;
+}
+
+#layoutSidenav_nav {
+  flex-basis: 225px;
+  flex-shrink: 0;
+  transition: transform 0.3s ease-in-out;
+}
+
+#layoutSidenav_content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  min-width: 0;
+  flex-grow: 1;
+  min-height: calc(100vh - 56px);
+}
+
+/* Sidebar navigation */
+.sb-sidenav {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  flex-wrap: nowrap;
+}
+
+.sb-sidenav-dark {
+  background-color: #212529;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.sb-sidenav .sb-sidenav-menu {
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+.sb-sidenav .sb-sidenav-footer {
+  padding: 0.75rem;
+  background-color: #343a40;
+}
+
+/* Links del sidebar */
+.sb-sidenav .nav-link {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  color: rgba(255, 255, 255, 0.5);
+  text-decoration: none;
+  transition: color 0.15s ease-in-out;
+}
+
+.sb-sidenav .nav-link:hover {
+  color: rgba(255, 255, 255, 0.75);
+  background-color: rgba(255, 255, 255, 0.075);
+}
+
+.sb-sidenav .nav-link.active {
+  color: #0d6efd;
+  background-color: rgba(13, 110, 253, 0.1);
+}
+
+.sb-nav-link-icon {
+  margin-right: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.sb-sidenav-menu-heading {
+  padding: 1.75rem 1rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05rem;
+  color: rgba(255, 255, 255, 0.25);
+}
+
+/* Responsive */
+@media (max-width: 991.98px) {
+  #layoutSidenav_nav {
+    transform: translateX(-225px);
+  }
+  
+  #layoutSidenav.sb-sidenav-toggled #layoutSidenav_nav {
+    transform: translateX(0);
+  }
+}
+
+/* Tarjetas del dashboard */
+.card {
+  box-shadow: 0 0.15rem 1.75rem 0 rgba(33, 40, 50, 0.15);
+  margin-bottom: 1.5rem;
+}
+
+.card-body h3, .card-body h5 {
+  margin-bottom: 0.5rem;
+}
+
+/* Gráficos */
+canvas {
+  max-width: 100%;
+  height: auto !important;
+}
+
+/* Tablas */
+.table {
+  margin-bottom: 0;
+}
+
+.table thead {
+  background-color: #f8f9fa;
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(0, 0, 0, 0.075);
+}
+
+/* Badge para roles */
+.badge-rol {
+  padding: 0.25rem 0.5rem;
+  background-color: #0d6efd;
+  color: white;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+}
+

@@ -215,32 +215,39 @@ public class OrdenService {
     /**
      * Obtener estadísticas de ventas del primer semestre (enero-junio)
      * Retorna Map con mes y total vendido
+     * ACTUALIZADO: Muestra últimos 6 meses en vez de primer semestre fijo
      */
     public Map<String, Object> obtenerVentasPrimerSemestre() {
-        logger.info("📈 [STATS] Calculando ventas primer semestre");
+        logger.info("📈 [STATS] Calculando ventas últimos 6 meses");
         
-        int anioActual = LocalDate.now().getYear();
-        LocalDateTime inicio = LocalDateTime.of(anioActual, 1, 1, 0, 0);
-        LocalDateTime fin = LocalDateTime.of(anioActual, 6, 30, 23, 59);
+        // Calcular últimos 6 meses desde hoy
+        LocalDate fechaActual = LocalDate.now();
+        LocalDateTime fin = fechaActual.atTime(23, 59, 59);
+        LocalDateTime inicio = fechaActual.minusMonths(5).withDayOfMonth(1).atStartOfDay();
+        
+        logger.info("📅 [STATS] Rango de fechas - Inicio: {}, Fin: {}", inicio, fin);
         
         List<Orden> ordenes = ordenRepository.findByFechaBetweenOrderByFechaDesc(inicio, fin);
         
-        // Agrupar por mes
-        Map<String, Long> ventasPorMes = new LinkedHashMap<>();
-        String[] meses = {"Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio"};
+        logger.info("📊 [STATS] Órdenes encontradas en rango: {}", ordenes.size());
         
-        // Inicializar meses con 0
-        for (String mes : meses) {
-            ventasPorMes.put(mes, 0L);
+        // Agrupar por mes (últimos 6 meses)
+        Map<String, Long> ventasPorMes = new LinkedHashMap<>();
+        String[] nombresMeses = {"Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
+                                 "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"};
+        
+        // Inicializar últimos 6 meses con 0
+        for (int i = 5; i >= 0; i--) {
+            LocalDate mes = fechaActual.minusMonths(i);
+            String nombreMes = nombresMeses[mes.getMonthValue() - 1];
+            ventasPorMes.put(nombreMes, 0L);
         }
         
         // Sumar ventas por mes
         for (Orden orden : ordenes) {
             int mesNumero = orden.getFecha().getMonthValue();
-            if (mesNumero >= 1 && mesNumero <= 6) {
-                String nombreMes = meses[mesNumero - 1];
-                ventasPorMes.merge(nombreMes, orden.getTotal().longValue(), Long::sum);
-            }
+            String nombreMes = nombresMeses[mesNumero - 1];
+            ventasPorMes.merge(nombreMes, orden.getTotal().longValue(), Long::sum);
         }
         
         // Convertir a formato para gráfico
@@ -260,9 +267,9 @@ public class OrdenService {
         resultado.put("datos", datos);
         resultado.put("totalVendido", totalVendido);
         resultado.put("cantidadOrdenes", cantidadOrdenes);
-        resultado.put("periodo", "Primer Semestre " + anioActual);
+        resultado.put("periodo", "Últimos 6 Meses");
         
-        logger.info("✅ [STATS] Ventas semestre - Total: ${}, Órdenes: {}", totalVendido, cantidadOrdenes);
+        logger.info("✅ [STATS] Ventas 6 meses - Total: ${}, Órdenes: {}", totalVendido, cantidadOrdenes);
         return resultado;
     }
 

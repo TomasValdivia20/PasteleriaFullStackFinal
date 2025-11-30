@@ -1,14 +1,13 @@
 import React from "react";
+import { Routes, Route, useLocation } from "react-router-dom";
 /* --- BLOQUE DE CSS --- */
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./css/general.css";
 import "./css/catalogo.css";
 import "./css/Home.css";
 
-// Contextos
 import { UserProvider } from "./context/UserContext";
 import { CarritoProvider } from "./context/CarritoContext";
-import { Routes, Route } from "react-router-dom"; 
 
 // Componentes globales
 import Header from "./components/Header";
@@ -47,11 +46,14 @@ import BackofficeUsuario from "./Backoffice/UsuarioBackoffice";
 import BackofficeReportes from "./Backoffice/Reportes";
 
 function App() {
+  const location = useLocation();
+  const isBackoffice = location.pathname.startsWith("/backoffice");
+
   return (
     <UserProvider>
       <CarritoProvider>
-          <Header />
-          <main className="main-content">
+          {!isBackoffice && <Header />}
+          <main className={!isBackoffice ? "main-content" : ""}>
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/acercadenosotros" element={<AcercaDeNosotros />} />
@@ -140,7 +142,7 @@ function App() {
               <Route path="/contacto" element={<Contacto />} />
               </Routes>
           </main>
-          <Footer />
+          {!isBackoffice && <Footer />}
       </CarritoProvider>
     </UserProvider>
   );
