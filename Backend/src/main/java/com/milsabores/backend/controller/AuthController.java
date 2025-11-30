@@ -16,10 +16,10 @@ import java.util.Map;
 /**
  * Controlador REST para autenticación
  * Capa de presentación - MVC Pattern
+ * CORS configurado globalmente en SecurityConfig
  */
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "*", allowCredentials = "false")
 public class AuthController {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);

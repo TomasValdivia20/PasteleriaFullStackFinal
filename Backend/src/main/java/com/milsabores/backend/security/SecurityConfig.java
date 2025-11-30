@@ -1,6 +1,9 @@
 package com.milsabores.backend.security;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -22,6 +25,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Configuración de Spring Security con JWT
@@ -31,6 +35,11 @@ import java.util.Arrays;
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true) // Habilita @PreAuthorize
 public class SecurityConfig {
+
+    private static final Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
+
+    @Value("${frontend.url:http://localhost:5173}")
+    private String frontendUrl;
 
     @Autowired
     private CustomUserDetailsService userDetailsService;
@@ -54,29 +63,38 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // Endpoints públicos (sin autenticación)
                 .requestMatchers(
-                    "/api/auth/**",           // Login y registro
-                    "/api/productos/**",      // Catálogo público
-                    "/api/categorias/**",     // Categorías públicas
-                    "/api/imagenes/**"        // Imágenes públicas
+                    "/api/auth/**",                           // Login y registro
+                    "/api/imagenes/**"                        // Imágenes públicas
                 ).permitAll()
                 
+                // Catálogo público - solo lectura
+                .requestMatchers(HttpMethod.GET, "/api/productos/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/categorias/**").permitAll()
+                
+                // Contacto público - solo creación
+                .requestMatchers(HttpMethod.POST, "/api/contactos").permitAll()
+                
                 // Endpoints solo para ADMIN
-                .requestMatchers(
-                    "/api/usuarios/**",       // Gestión de usuarios
-                    "/api/reportes/**"        // Reportes
-                ).hasRole("ADMIN")
+                .requestMatchers("/api/usuarios/**").hasRole("ADMIN")
+                .requestMatchers("/api/reportes/**").hasRole("ADMIN")
                 
                 // Endpoints para ADMIN y EMPLEADO
                 .requestMatchers(HttpMethod.GET, "/api/ordenes/**").hasAnyRole("ADMIN", "EMPLEADO")
-                .requestMatchers(HttpMethod.GET, "/api/contacto/**").hasAnyRole("ADMIN", "EMPLEADO")
+                .requestMatchers(HttpMethod.GET, "/api/contactos/**").hasAnyRole("ADMIN", "EMPLEADO")
                 
-                // Endpoints solo para ADMIN (escritura)
+                // Gestión de productos - solo ADMIN
                 .requestMatchers(HttpMethod.POST, "/api/productos/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/api/productos/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/productos/**").hasRole("ADMIN")
+                
+                // Gestión de categorías - solo ADMIN
                 .requestMatchers(HttpMethod.POST, "/api/categorias/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/api/categorias/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/categorias/**").hasRole("ADMIN")
+                
+                // Gestión de contactos - solo ADMIN
+                .requestMatchers(HttpMethod.PUT, "/api/contactos/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/contactos/**").hasRole("ADMIN")
                 
                 // Crear órdenes - CLIENTE autenticado
                 .requestMatchers(HttpMethod.POST, "/api/ordenes/crear").hasRole("CLIENTE")
@@ -98,12 +116,18 @@ public class SecurityConfig {
 
     /**
      * Configuración de CORS
+     * Permite peticiones desde el frontend configurado via variable de entorno
      */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(Arrays.asList("*")); // En producción, especificar dominios exactos
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        
+        // Parsear URLs del frontend (puede ser múltiples URLs separadas por coma)
+        List<String> allowedOrigins = Arrays.asList(frontendUrl.split(","));
+        logger.info("🌍 [CORS] Orígenes permitidos: {}", allowedOrigins);
+        
+        configuration.setAllowedOrigins(allowedOrigins);
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);

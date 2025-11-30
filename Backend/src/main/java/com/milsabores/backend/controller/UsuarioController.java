@@ -18,10 +18,10 @@ import java.util.Map;
  * Controlador REST para gestión de usuarios
  * Capa de presentación - MVC Pattern
  * Solo accesible por ADMIN
+ * CORS configurado globalmente en SecurityConfig
  */
 @RestController
 @RequestMapping("/api/usuarios")
-@CrossOrigin(origins = "*", allowCredentials = "false")
 @PreAuthorize("hasRole('ADMIN')")
 public class UsuarioController {
 

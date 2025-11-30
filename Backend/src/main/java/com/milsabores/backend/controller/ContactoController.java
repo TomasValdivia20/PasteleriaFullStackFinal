@@ -19,10 +19,10 @@ import java.util.Map;
  * 
  * ENDPOINTS PÚBLICOS: POST /api/contactos (formulario de contacto)
  * ENDPOINTS ADMIN: GET, PUT, DELETE (gestión de mensajes)
+ * CORS configurado globalmente en SecurityConfig
  */
 @RestController
 @RequestMapping("/api/contactos")
-@CrossOrigin(origins = "*", allowCredentials = "false")
 public class ContactoController {
     
     private static final Logger logger = LoggerFactory.getLogger(ContactoController.class);

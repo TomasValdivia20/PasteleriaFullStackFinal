@@ -17,10 +17,10 @@ import java.util.Map;
 /**
  * Controlador REST para gestión de órdenes/ventas
  * Capa de presentación - MVC Pattern
+ * CORS configurado globalmente en SecurityConfig
  */
 @RestController
 @RequestMapping("/api/ordenes")
-@CrossOrigin(origins = "*", allowCredentials = "false")
 public class OrdenController {
 
     private static final Logger logger = LoggerFactory.getLogger(OrdenController.class);
