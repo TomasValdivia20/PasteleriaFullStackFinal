@@ -49,19 +49,23 @@ public class ImagenProductoController {
     /**
      * Subir nueva imagen para un producto
      * POST /api/productos/{productoId}/imagenes
+     * 
+     * @RequestPart se usa para archivos en multipart/form-data
+     * @RequestParam se usa para parámetros primitivos opcionales
      */
     @PostMapping(consumes = "multipart/form-data")
     public ResponseEntity<?> subirImagen(
             @PathVariable Long productoId,
-            @RequestParam("file") MultipartFile file,
-            @RequestParam(value = "esPrincipal", defaultValue = "false") boolean esPrincipal,
+            @RequestPart("file") MultipartFile file,
+            @RequestParam(value = "esPrincipal", required = false, defaultValue = "false") Boolean esPrincipal,
             HttpServletRequest request) {
         
         logger.info("📥 [REQUEST] POST /api/productos/{}/imagenes", productoId);
         logger.info("   Origin: {}", request.getHeader("Origin"));
-        logger.info("   File: {}", file.getOriginalFilename());
-        logger.info("   Size: {} bytes", file.getSize());
-        logger.info("   Content-Type: {}", file.getContentType());
+        logger.info("   Content-Type Header: {}", request.getContentType());
+        logger.info("   File: {}", file != null ? file.getOriginalFilename() : "NULL");
+        logger.info("   Size: {} bytes", file != null ? file.getSize() : 0);
+        logger.info("   File Content-Type: {}", file != null ? file.getContentType() : "NULL");
         logger.info("   Es Principal: {}", esPrincipal);
         
         try {
