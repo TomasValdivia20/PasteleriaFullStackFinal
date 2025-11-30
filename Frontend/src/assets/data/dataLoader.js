@@ -1,6 +1,7 @@
 import api from '../../api'; 
 
 // ===== CARGAR TODAS LAS CATEGORÍAS =====
+// VERSION: 2025-11-30-fix-trim
 export const cargarCategorias = async () => {
   console.log('📚 [dataLoader] Iniciando carga de categorías...');
   
