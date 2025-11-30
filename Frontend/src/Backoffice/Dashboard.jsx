@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { Chart, registerables } from 'chart.js';
 import api from "../api";
 import "./css/styles.css";
+
+// Registrar componentes de Chart.js
+Chart.register(...registerables);
 
 export default function Dashboard() {
   const [ventasUltimos15Dias, setVentasUltimos15Dias] = useState(null);
