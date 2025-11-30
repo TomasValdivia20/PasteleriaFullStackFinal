@@ -70,11 +70,11 @@ function App() {
               <Route path="/blogs" element={<CategoriaBlogs />} />
               <Route path="/blogs/:slug" element={<DetalleBlog />} />
 
-              {/* Rutas para el BackOffice - PROTEGIDAS (requieren rol ADMIN) */}
+              {/* Rutas para el BackOffice - PROTEGIDAS (ADMIN y EMPLEADO) */}
               <Route 
                 path="/backoffice" 
                 element={
-                  <ProtectedRoute requiredRole="ADMIN">
+                  <ProtectedRoute requiredRole={["ADMIN", "EMPLEADO"]}>
                     <BackofficeDashboard />
                   </ProtectedRoute>
                 } 
@@ -82,7 +82,7 @@ function App() {
               <Route 
                 path="/backoffice/Dashboard" 
                 element={
-                  <ProtectedRoute requiredRole="ADMIN">
+                  <ProtectedRoute requiredRole={["ADMIN", "EMPLEADO"]}>
                     <BackofficeDashboard />
                   </ProtectedRoute>
                 } 
@@ -90,7 +90,7 @@ function App() {
               <Route 
                 path="/backoffice/Ordenes" 
                 element={
-                  <ProtectedRoute requiredRole="ADMIN">
+                  <ProtectedRoute requiredRole={["ADMIN", "EMPLEADO"]}>
                     <BackofficeOrdenes />
                   </ProtectedRoute>
                 } 
@@ -98,7 +98,7 @@ function App() {
               <Route 
                 path="/backoffice/Producto" 
                 element={
-                  <ProtectedRoute requiredRole="ADMIN">
+                  <ProtectedRoute requiredRole={["ADMIN", "EMPLEADO"]}>
                     <BackofficeProducto />
                   </ProtectedRoute>
                 } 
@@ -106,7 +106,7 @@ function App() {
               <Route 
                 path="/backoffice/Categoria" 
                 element={
-                  <ProtectedRoute requiredRole="ADMIN">
+                  <ProtectedRoute requiredRole={["ADMIN", "EMPLEADO"]}>
                     <BackofficeCategoria />
                   </ProtectedRoute>
                 } 
@@ -114,7 +114,7 @@ function App() {
               <Route 
                 path="/backoffice/Contacto" 
                 element={
-                  <ProtectedRoute requiredRole="ADMIN">
+                  <ProtectedRoute requiredRole={["ADMIN", "EMPLEADO"]}>
                     <BackofficeContacto />
                   </ProtectedRoute>
                 } 

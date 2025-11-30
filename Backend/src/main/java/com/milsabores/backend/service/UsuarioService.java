@@ -7,6 +7,7 @@ import com.milsabores.backend.repository.UsuarioRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,11 +27,13 @@ public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
     private final RolRepository rolRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UsuarioService(UsuarioRepository usuarioRepository, RolRepository rolRepository) {
+    public UsuarioService(UsuarioRepository usuarioRepository, RolRepository rolRepository, PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
         this.rolRepository = rolRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     /**
@@ -60,6 +63,9 @@ public class UsuarioService {
                     .orElseThrow(() -> new RuntimeException("Rol CLIENTE no encontrado en BD"));
             usuario.setRol(rolCliente);
         }
+
+        // Encriptar contraseña antes de guardar
+        usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
 
         // Guardar
         Usuario nuevoUsuario = usuarioRepository.save(usuario);
@@ -92,6 +98,9 @@ public class UsuarioService {
         Rol rol = rolRepository.findByNombre(nombreRol)
                 .orElseThrow(() -> new IllegalArgumentException("Rol no válido: " + nombreRol));
         usuario.setRol(rol);
+
+        // Encriptar contraseña antes de guardar
+        usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
 
         // Guardar
         Usuario nuevoUsuario = usuarioRepository.save(usuario);

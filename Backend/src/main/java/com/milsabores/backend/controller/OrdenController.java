@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,10 +32,11 @@ public class OrdenController {
     }
 
     /**
-     * Listar todas las órdenes (ADMIN)
+     * Listar todas las órdenes (ADMIN y EMPLEADO)
      * GET /api/ordenes
      */
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLEADO')")
     public ResponseEntity<List<Orden>> listarTodas() {
         logger.info("📋 [GET] /api/ordenes - Listar todas las órdenes");
         
@@ -49,10 +51,11 @@ public class OrdenController {
     }
 
     /**
-     * Crear nueva orden desde carrito de compras (PÚBLICO)
+     * Crear nueva orden desde carrito de compras (CLIENTE autenticado)
      * POST /api/ordenes/crear
      */
     @PostMapping("/crear")
+    @PreAuthorize("hasRole('CLIENTE')")
     public ResponseEntity<?> crearOrden(@RequestBody CrearOrdenRequest request) {
         logger.info("🛒 [POST] /api/ordenes/crear - Usuario ID: {}, Items: {}", 
             request.getUsuarioId(), request.getItems().size());
@@ -76,10 +79,11 @@ public class OrdenController {
     }
 
     /**
-     * Obtener estadísticas de ventas últimos 15 días
+     * Obtener estadísticas de ventas últimos 15 días (ADMIN y EMPLEADO)
      * GET /api/ordenes/stats/ultimos-15-dias
      */
     @GetMapping("/stats/ultimos-15-dias")
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLEADO')")
     public ResponseEntity<Map<String, Object>> ventasUltimos15Dias() {
         logger.info("📈 [GET] /api/ordenes/stats/ultimos-15-dias");
         
@@ -94,10 +98,11 @@ public class OrdenController {
     }
 
     /**
-     * Obtener estadísticas de ventas primer semestre
+     * Obtener estadísticas de ventas primer semestre (ADMIN y EMPLEADO)
      * GET /api/ordenes/stats/primer-semestre
      */
     @GetMapping("/stats/primer-semestre")
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLEADO')")
     public ResponseEntity<Map<String, Object>> ventasPrimerSemestre() {
         logger.info("📈 [GET] /api/ordenes/stats/primer-semestre");
         
@@ -112,10 +117,11 @@ public class OrdenController {
     }
 
     /**
-     * Obtener resumen general de estadísticas
+     * Obtener resumen general de estadísticas (ADMIN y EMPLEADO)
      * GET /api/ordenes/stats/resumen
      */
     @GetMapping("/stats/resumen")
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLEADO')")
     public ResponseEntity<Map<String, Object>> resumenGeneral() {
         logger.info("📊 [GET] /api/ordenes/stats/resumen");
         

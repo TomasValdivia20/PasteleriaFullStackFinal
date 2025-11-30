@@ -16,6 +16,7 @@ public class LoginResponse {
     private String apellido;
     private String correo;
     private String rol; // "ADMIN", "CLIENTE", "EMPLEADO"
+    private String token; // Token JWT
     private String mensaje;
     private boolean success;
 

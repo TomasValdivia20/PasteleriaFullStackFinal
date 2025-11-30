@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Chart, registerables } from 'chart.js';
+import { useUser } from "../context/UserContext";
 import api from "../api";
 import "./css/styles.css";
 
@@ -8,11 +9,15 @@ import "./css/styles.css";
 Chart.register(...registerables);
 
 export default function Dashboard() {
+  const { usuario } = useUser(); // Obtener usuario del contexto
   const [ventasUltimos15Dias, setVentasUltimos15Dias] = useState(null);
   const [ventasPrimerSemestre, setVentasPrimerSemestre] = useState(null);
   const [ordenes, setOrdenes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [charts, setCharts] = useState({ area: null, bar: null });
+
+  // Determinar si es ADMIN
+  const isAdmin = usuario?.rol === 'ADMIN';
 
   useEffect(() => {
     cargarDatos();
@@ -200,19 +205,25 @@ export default function Dashboard() {
                   <div className="sb-nav-link-icon"><i className="fas fa-envelope" /></div>
                   Contacto
                 </Link>
-                <Link to="/backoffice/Usuario" className="nav-link">
-                  <div className="sb-nav-link-icon"><i className="fas fa-user" /></div>
-                  Usuario
-                </Link>
-                <Link to="/backoffice/Reportes" className="nav-link">
-                  <div className="sb-nav-link-icon"><i className="fas fa-columns" /></div>
-                  Reportes
-                </Link>
+                
+                {/* Solo ADMIN puede ver Usuario y Reportes */}
+                {isAdmin && (
+                  <>
+                    <Link to="/backoffice/Usuario" className="nav-link">
+                      <div className="sb-nav-link-icon"><i className="fas fa-user" /></div>
+                      Usuario
+                    </Link>
+                    <Link to="/backoffice/Reportes" className="nav-link">
+                      <div className="sb-nav-link-icon"><i className="fas fa-columns" /></div>
+                      Reportes
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
             <div className="sb-sidenav-footer">
               <div className="small">Has iniciado sesión como:</div>
-              Administrador
+              {usuario?.rol || 'Usuario'}
             </div>
           </nav>
         </div>

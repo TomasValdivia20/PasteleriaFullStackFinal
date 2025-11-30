@@ -11,18 +11,32 @@ export function UserProvider({ children }) {
   useEffect(() => {
     const usuarioGuardado = localStorage.getItem("usuario");
     if (usuarioGuardado) {
-      setUsuario(JSON.parse(usuarioGuardado));
+      try {
+        const usuarioData = JSON.parse(usuarioGuardado);
+        setUsuario(usuarioData);
+        console.log("👤 [UserContext] Usuario cargado desde localStorage:", usuarioData.correo, "- Rol:", usuarioData.rol);
+      } catch (error) {
+        console.error("❌ [UserContext] Error al parsear usuario de localStorage:", error);
+        localStorage.removeItem("usuario");
+      }
     }
   }, []);
 
-  // Función para iniciar sesión (guarda en estado y localStorage)
+  // Función para iniciar sesión (guarda en estado y localStorage con token)
   const login = (usuarioData) => {
+    // Validar que tenga token JWT
+    if (!usuarioData.token) {
+      console.warn("⚠️ [UserContext] Usuario sin token JWT:", usuarioData);
+    }
+    
     setUsuario(usuarioData);
     localStorage.setItem("usuario", JSON.stringify(usuarioData));
+    console.log("✅ [UserContext] Login exitoso - Usuario:", usuarioData.correo, "- Rol:", usuarioData.rol, "- Token:", usuarioData.token ? "Sí" : "No");
   };
 
-  // Función para cerrar sesión
+  // Función para cerrar sesión (limpia token)
   const logout = () => {
+    console.log("🚪 [UserContext] Logout - Limpiando datos de usuario y token");
     setUsuario(null);
     localStorage.removeItem("usuario");
   };

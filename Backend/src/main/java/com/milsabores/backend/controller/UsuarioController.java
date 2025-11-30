@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -16,10 +17,12 @@ import java.util.Map;
 /**
  * Controlador REST para gestión de usuarios
  * Capa de presentación - MVC Pattern
+ * Solo accesible por ADMIN
  */
 @RestController
 @RequestMapping("/api/usuarios")
 @CrossOrigin(origins = "*", allowCredentials = "false")
+@PreAuthorize("hasRole('ADMIN')")
 public class UsuarioController {
 
     private static final Logger logger = LoggerFactory.getLogger(UsuarioController.class);

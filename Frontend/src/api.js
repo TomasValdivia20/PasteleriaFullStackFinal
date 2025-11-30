@@ -36,6 +36,21 @@ api.interceptors.request.use(
         console.log(`📤 [REQUEST] ${timestamp}`);
         console.log(`   Method: ${config.method?.toUpperCase()}`);
         console.log(`   URL: ${config.baseURL}${config.url}`);
+        
+        // 🔐 AGREGAR TOKEN JWT SI EXISTE
+        const usuarioData = localStorage.getItem('usuario');
+        if (usuarioData) {
+            try {
+                const usuario = JSON.parse(usuarioData);
+                if (usuario.token) {
+                    config.headers.Authorization = `Bearer ${usuario.token}`;
+                    console.log(`   🔑 Token JWT agregado al header`);
+                }
+            } catch (error) {
+                console.error('❌ Error al parsear usuario de localStorage:', error);
+            }
+        }
+        
         console.log(`   Headers:`, config.headers);
         if (config.params) {
             console.log(`   Params:`, config.params);
