@@ -69,18 +69,21 @@ api.interceptors.response.use(
         
         // ===== VALIDACIÓN DE RESPUESTA =====
         // Detectar cuando el backend responde con HTML en vez de JSON
-        if (typeof response.data === 'string' && response.data.trim().startsWith('<!doctype') || response.data.trim().startsWith('<html')) {
-            console.error('❌ [API RESPONSE ERROR] Backend respondió con HTML en vez de JSON');
-            console.error('   Esto significa que la URL está apuntando al frontend, no al backend API');
-            console.error('   URL solicitada:', response.config.url);
-            console.error('   Base URL:', response.config.baseURL);
-            console.error('   ⚠️  Posibles causas:');
-            console.error('      1. VITE_API_URL no incluye /api al final');
-            console.error('      2. Backend no está sirviendo la API en esa ruta');
-            console.error('      3. Problema de routing en el servidor');
-            
-            // Lanzar error para que se maneje en el catch
-            throw new Error('Backend respondió con HTML en vez de JSON. Verifica VITE_API_URL incluya /api');
+        if (typeof response.data === 'string') {
+            const trimmedData = response.data.trim();
+            if (trimmedData.startsWith('<!doctype') || trimmedData.startsWith('<html')) {
+                console.error('❌ [API RESPONSE ERROR] Backend respondió con HTML en vez de JSON');
+                console.error('   Esto significa que la URL está apuntando al frontend, no al backend API');
+                console.error('   URL solicitada:', response.config.url);
+                console.error('   Base URL:', response.config.baseURL);
+                console.error('   ⚠️  Posibles causas:');
+                console.error('      1. VITE_API_URL no incluye /api al final');
+                console.error('      2. Backend no está sirviendo la API en esa ruta');
+                console.error('      3. Problema de routing en el servidor');
+                
+                // Lanzar error para que se maneje en el catch
+                throw new Error('Backend respondió con HTML en vez de JSON. Verifica VITE_API_URL incluya /api');
+            }
         }
         
         if (Array.isArray(response.data)) {
