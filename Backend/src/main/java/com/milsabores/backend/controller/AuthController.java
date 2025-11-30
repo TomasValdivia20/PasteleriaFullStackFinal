@@ -36,7 +36,9 @@ public class AuthController {
      */
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
-        logger.info("📥 [LOGIN] Request recibido para: {}", loginRequest.getCorreo());
+        logger.info("🔐 [REQUEST] POST /api/auth/login");
+        logger.info("📧 [LOGIN] Correo: {}", loginRequest.getCorreo());
+        logger.info("🔒 [LOGIN] Password recibida: {}", loginRequest.getPassword() != null ? "[PRESENTE]" : "[NULL]");
 
         LoginResponse response = authService.authenticate(loginRequest);
 
@@ -55,7 +57,10 @@ public class AuthController {
      */
     @PostMapping("/registro")
     public ResponseEntity<LoginResponse> registro(@RequestBody Map<String, String> request) {
-        logger.info("📝 [REGISTRO] Request recibido para: {}", request.get("correo"));
+        logger.info("📝 [REQUEST] POST /api/auth/registro");
+        logger.info("📧 [REGISTRO] Correo: {}", request.get("correo"));
+        logger.info("👤 [REGISTRO] Nombre: {}", request.get("nombre"));
+        logger.info("📍 [REGISTRO] Región: {}", request.get("region"));
 
         try {
             // Mapear request a Usuario
