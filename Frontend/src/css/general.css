@@ -11473,30 +11473,68 @@ h1, h2, h3, .titulo, .header-top h1 {
   padding-top: 20px;
 }
 
-/* Layout sidebar del backoffice - ajustado para no sobreponerse al Header */
+/* IMPORTANTE: Sobrescribir estilos de styles.css del backoffice para que funcione con Header principal */
+/* Layout sidebar del backoffice - ajustado para coexistir con Header */
 #layoutSidenav {
   display: flex;
   min-height: calc(100vh - 200px);
   margin-top: 0;
 }
 
-#layoutSidenav_nav {
-  flex-basis: 225px;
-  flex-shrink: 0;
-  transition: transform 0.3s ease-in-out;
-  position: relative;
-  z-index: 10;
+/* Sidebar en desktop - visible por defecto */
+@media (min-width: 992px) {
+  #layoutSidenav #layoutSidenav_nav {
+    flex-basis: 225px;
+    flex-shrink: 0;
+    transition: transform 0.15s ease-in-out;
+    z-index: 100 !important; /* Por debajo del Header (z-index: 1000) */
+    transform: translateX(0) !important; /* Visible por defecto en desktop */
+    position: relative !important; /* No fixed para que fluya con el contenido */
+  }
+
+  #layoutSidenav #layoutSidenav_content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    min-width: 0;
+    flex-grow: 1;
+    min-height: calc(100vh - 200px);
+    padding: 20px;
+    margin-left: 0 !important; /* Sin margen negativo */
+  }
 }
 
-#layoutSidenav_content {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  min-width: 0;
-  flex-grow: 1;
-  min-height: calc(100vh - 200px);
-  padding: 20px;
+/* Sidebar en mobile/tablet - oculto por defecto */
+@media (max-width: 991.98px) {
+  #layoutSidenav #layoutSidenav_nav {
+    flex-basis: 225px;
+    flex-shrink: 0;
+    transition: transform 0.3s ease-in-out;
+    z-index: 100;
+    transform: translateX(-225px); /* Oculto por defecto en mobile */
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    background-color: #212529;
+  }
+
+  #layoutSidenav #layoutSidenav_content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    flex-grow: 1;
+    width: 100%;
+    padding: 15px;
+    margin-left: 0 !important; /* Sin margen negativo */
+  }
+
+  /* Cuando el sidebar está toggled en mobile */
+  .sb-sidenav-toggled #layoutSidenav #layoutSidenav_nav {
+    transform: translateX(0) !important;
+  }
 }
 
 /* Sidebar navigation */
