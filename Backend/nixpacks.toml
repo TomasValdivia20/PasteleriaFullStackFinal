@@ -1,0 +1,14 @@
+# Nixpacks configuration for Railway deployment
+# https://nixpacks.com/docs/configuration/file
+
+[phases.setup]
+nixPkgs = ["...", "maven", "jdk17"]
+
+[phases.build]
+cmds = [
+    "chmod +x ./mvnw",
+    "./mvnw clean package -DskipTests -Dmaven.test.skip=true"
+]
+
+[start]
+cmd = "java -Dspring.profiles.active=production -Dserver.port=$PORT -jar target/backend-0.0.1-SNAPSHOT.jar"

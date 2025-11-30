@@ -41,33 +41,50 @@ git push
 En la sección **Variables** del servicio backend, agrega:
 
 ```bash
-# Perfil de Spring Boot
+# Perfil de Spring Boot (OBLIGATORIO)
 SPRING_PROFILES_ACTIVE=production
 
-# Base de Datos (Railway las provee automáticamente al agregar MySQL)
-DATABASE_URL=jdbc:mysql://${MYSQLHOST}:${MYSQLPORT}/${MYSQLDATABASE}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-DB_USERNAME=${MYSQLUSER}
-DB_PASSWORD=${MYSQLPASSWORD}
+# Base de Datos - Opción A: MySQL de Railway (RECOMENDADO)
+DATABASE_URL=${{MYSQL_URL}}
+DB_USERNAME=${{MYSQLUSER}}
+DB_PASSWORD=${{MYSQLPASSWORD}}
+
+# Base de Datos - Opción B: MySQL externo
+# DATABASE_URL=jdbc:mysql://tu-host:3306/db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+# DB_USERNAME=tu_usuario
+# DB_PASSWORD=tu_password
 
 # Frontend URL (actualizar después de desplegar en Vercel)
 FRONTEND_URL=https://tu-app.vercel.app
 
-# Puerto (Railway lo asigna automáticamente)
+# Puerto (Railway lo asigna automáticamente - USAR EXACTAMENTE ASÍ)
 PORT=${{PORT}}
 ```
 
-**IMPORTANTE**: Reemplaza las variables `${MYSQL*}` con los valores reales que Railway generó para tu base de datos MySQL, o usa directamente las variables de referencia de Railway.
+**⚠️ IMPORTANTE**: 
+- Las variables `${{VARIABLE}}` son referencias de Railway, no las cambies
+- Railway reemplaza automáticamente `${{MYSQLUSER}}` con el valor real
+- `${{PORT}}` es dinámico y Railway lo asigna automáticamente
 
 ### Paso 5: Configurar Build
 
-Railway configurará automáticamente:
+Railway configurará automáticamente usando los archivos:
 
+- **nixpacks.toml**: Configuración de build optimizada
+- **railway.json**: Comandos específicos
+- **.railwayignore**: Excluir archivos innecesarios
+
+**Build automático**:
 ```bash
-Build Command: ./mvnw clean package -DskipTests
-Start Command: java -Dserver.port=$PORT -Dspring.profiles.active=production -jar target/backend-0.0.1-SNAPSHOT.jar
+chmod +x ./mvnw && ./mvnw clean package -DskipTests
 ```
 
-Si Railway no detecta esto automáticamente, puedes configurarlo manualmente en **Settings** → **Build** y **Deploy**.
+**Start automático**:
+```bash
+java -Dspring.profiles.active=production -Dserver.port=$PORT -jar target/backend-0.0.1-SNAPSHOT.jar
+```
+
+Si Railway no detecta correctamente, verifica que los archivos estén en el repositorio.
 
 ### Paso 6: Deploy
 

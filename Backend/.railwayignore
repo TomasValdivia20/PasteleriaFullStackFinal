@@ -1,0 +1,29 @@
+# Excluir archivos innecesarios del deployment en Railway
+
+# IDEs
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# Build artifacts que se regeneran
+target/classes/
+target/test-classes/
+target/generated-sources/
+target/generated-test-sources/
+target/maven-status/
+target/surefire-reports/
+
+# Tests
+src/test/
+
+# Documentación
+HELP.md
+RAILWAY_DEPLOYMENT.md
+*.md
+
+# Git
+.git/
+.gitignore
+.gitattributes
