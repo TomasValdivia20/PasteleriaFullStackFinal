@@ -2,6 +2,7 @@ package com.milsabores.backend.controller;
 
 import com.milsabores.backend.dto.LoginRequest;
 import com.milsabores.backend.dto.LoginResponse;
+import com.milsabores.backend.model.Usuario;
 import com.milsabores.backend.service.AuthService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 /**
  * Controlador REST para autenticación
@@ -43,6 +46,42 @@ public class AuthController {
         } else {
             logger.warn("❌ [LOGIN] Login fallido: {}", response.getMensaje());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+    }
+
+    /**
+     * Endpoint de registro de nuevos usuarios
+     * POST /api/auth/registro
+     */
+    @PostMapping("/registro")
+    public ResponseEntity<LoginResponse> registro(@RequestBody Map<String, String> request) {
+        logger.info("📝 [REGISTRO] Request recibido para: {}", request.get("correo"));
+
+        try {
+            // Mapear request a Usuario
+            Usuario usuario = new Usuario();
+            usuario.setRut(request.get("rut"));
+            usuario.setNombre(request.get("nombre"));
+            usuario.setApellido(request.get("apellido"));
+            usuario.setCorreo(request.get("correo"));
+            usuario.setPassword(request.get("password"));
+            usuario.setDireccion(request.get("direccion"));
+            usuario.setRegion(request.get("region"));
+            usuario.setComuna(request.get("comuna"));
+
+            LoginResponse response = authService.registrar(usuario);
+
+            if (response.isSuccess()) {
+                logger.info("✅ [REGISTRO] Registro exitoso: {}", request.get("correo"));
+                return ResponseEntity.status(HttpStatus.CREATED).body(response);
+            } else {
+                logger.warn("❌ [REGISTRO] Registro fallido: {}", response.getMensaje());
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+        } catch (Exception e) {
+            logger.error("❌ [REGISTRO] Error inesperado: {}", e.getMessage());
+            LoginResponse errorResponse = new LoginResponse("Error al procesar el registro", false);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
 }

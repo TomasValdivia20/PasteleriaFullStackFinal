@@ -20,10 +20,12 @@ public class AuthService {
     
     private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
     private final UsuarioRepository usuarioRepository;
+    private final UsuarioService usuarioService;
 
     @Autowired
-    public AuthService(UsuarioRepository usuarioRepository) {
+    public AuthService(UsuarioRepository usuarioRepository, UsuarioService usuarioService) {
         this.usuarioRepository = usuarioRepository;
+        this.usuarioService = usuarioService;
     }
 
     /**
@@ -69,5 +71,37 @@ public class AuthService {
             "Login exitoso",
             true
         );
+    }
+
+    /**
+     * Registrar nuevo usuario desde formulario público
+     * @param usuario datos del nuevo usuario
+     * @return LoginResponse con datos del usuario registrado
+     */
+    public LoginResponse registrar(Usuario usuario) {
+        logger.info("📝 [REGISTRO] Intento de registro para: {}", usuario.getCorreo());
+
+        try {
+            // Delegar validación y creación al UsuarioService
+            Usuario nuevoUsuario = usuarioService.registrar(usuario);
+
+            logger.info("✅ [REGISTRO] Usuario registrado exitosamente: {}", nuevoUsuario.getCorreo());
+
+            return new LoginResponse(
+                nuevoUsuario.getId(),
+                nuevoUsuario.getNombre(),
+                nuevoUsuario.getApellido(),
+                nuevoUsuario.getCorreo(),
+                nuevoUsuario.getRol().getNombre(),
+                "Registro exitoso",
+                true
+            );
+        } catch (IllegalArgumentException e) {
+            logger.warn("⚠️ [REGISTRO] Error de validación: {}", e.getMessage());
+            return new LoginResponse(e.getMessage(), false);
+        } catch (Exception e) {
+            logger.error("❌ [REGISTRO] Error inesperado: {}", e.getMessage());
+            return new LoginResponse("Error al registrar usuario", false);
+        }
     }
 }

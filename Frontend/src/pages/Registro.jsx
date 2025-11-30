@@ -4,8 +4,8 @@ import "../css/Registro.css";
 import "../css/general.css";
 import { useState } from "react";
 import { validarFormulario } from "../utils/validarFormulario";
-// Importamos los datos JSON de Regiones y Comunas
 import { REGIONES_Y_COMUNAS } from "../utils/dataRegiones";
+import api from "../api";
 
 export default function Registro() {
   const [formData, setFormData] = useState({
@@ -48,51 +48,28 @@ export default function Registro() {
       setErrores(erroresValidacion);
       return;
     }
+
+    setCargando(true);
+    setErrores({});
+    setMensaje("");
+
     try {
-      // Verificar si el correo ya existe en el servidor
-      const response = await fetch(`http://localhost:3001/usuarios?correo=${formData.correo}`);
-      const existentes = await response.json();
-
-      if (existentes.length > 0) {
-        setErrores({ correo: "Este correo ya está registrado" });
-        return;
-      }
-
-      //  Guardar nuevo usuario en servidor
-      const res = await fetch("http://localhost:3001/usuarios", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+      // Enviar datos al backend
+      const response = await api.post('/auth/registro', {
+        rut: formData.rut,
+        nombre: formData.nombre,
+        apellido: formData.apellido,
+        correo: formData.correo,
+        password: formData.contrasena,
+        direccion: formData.direccion,
+        region: formData.region,
+        comuna: formData.comuna
       });
 
-      if (!res.ok) throw new Error("Error al registrar usuario");
-
-      alert("✅ Registro exitoso");
-      setFormData({
-        rut: "",
-        nombre: "",
-        apellido: "",
-        correo: "",
-        region: "",
-        comuna: "",  
-        direccion: "",
-        contrasena: "",
-      });
-    } catch (error) {
-      console.error(error);
-       try {
-        const usuariosLocales = JSON.parse(localStorage.getItem("usuariosDemo")) || [];
-        const existeCorreo = usuariosLocales.some(u => u.correo === formData.correo);
-
-        if (existeCorreo) {
-          alert("⚠️ Este correo ya está registrado (modo demo)");
-          return;
-        }
-
-        usuariosLocales.push(formData);
-        localStorage.setItem("usuariosDemo", JSON.stringify(usuariosLocales));
-
-        alert("✅ Registro exitoso (modo demo sin servidor)");
+      if (response.data.success) {
+        setMensaje("✅ " + response.data.mensaje);
+        
+        // Resetear formulario
         setFormData({
           rut: "",
           nombre: "",
@@ -103,9 +80,19 @@ export default function Registro() {
           direccion: "",
           contrasena: "",
         });
-      } catch (fallbackError) {
-        alert("⚠️ No se pudo conectar con el servidor JSON.");
+      } else {
+        setMensaje("❌ " + response.data.mensaje);
       }
+    } catch (error) {
+      console.error("Error en registro:", error);
+      
+      if (error.response && error.response.data && error.response.data.mensaje) {
+        setMensaje("❌ " + error.response.data.mensaje);
+      } else {
+        setMensaje("❌ Error al conectar con el servidor. Intente nuevamente.");
+      }
+    } finally {
+      setCargando(false);
     }
   };
 

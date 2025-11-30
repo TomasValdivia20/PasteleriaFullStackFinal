@@ -43,7 +43,7 @@ import BackofficeOrdenes from "./Backoffice/Ordenes";
 import BackofficeProducto from "./Backoffice/Producto";
 import BackofficeCategoria from "./Backoffice/Categoria";
 import BackofficeContacto from "./Backoffice/ContactoBackoffice";
-import BackofficeUsuario from "./Backoffice/Usuario";
+import BackofficeUsuario from "./Backoffice/UsuarioBackoffice";
 import BackofficeReportes from "./Backoffice/Reportes";
 import BackofficePerfil from "./Backoffice/Perfil";
 
