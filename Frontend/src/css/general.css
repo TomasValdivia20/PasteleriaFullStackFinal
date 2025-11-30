@@ -11468,20 +11468,24 @@ h1, h2, h3, .titulo, .header-top h1 {
 
 /* Asegurar que backoffice ocupe todo el viewport sin scroll innecesario */
 .backoffice-page {
-  min-height: 100vh;
+  min-height: calc(100vh - 200px);
   background-color: #f8f9fa;
+  padding-top: 20px;
 }
 
-/* Layout sidebar del backoffice */
+/* Layout sidebar del backoffice - ajustado para no sobreponerse al Header */
 #layoutSidenav {
   display: flex;
-  min-height: 100vh;
+  min-height: calc(100vh - 200px);
+  margin-top: 0;
 }
 
 #layoutSidenav_nav {
   flex-basis: 225px;
   flex-shrink: 0;
   transition: transform 0.3s ease-in-out;
+  position: relative;
+  z-index: 10;
 }
 
 #layoutSidenav_content {
@@ -11491,7 +11495,8 @@ h1, h2, h3, .titulo, .header-top h1 {
   justify-content: flex-start;
   min-width: 0;
   flex-grow: 1;
-  min-height: calc(100vh - 56px);
+  min-height: calc(100vh - 200px);
+  padding: 20px;
 }
 
 /* Sidebar navigation */
@@ -11572,7 +11577,7 @@ h1, h2, h3, .titulo, .header-top h1 {
   margin-bottom: 0.5rem;
 }
 
-/* Gráficos */
+/* Grï¿½ficos */
 canvas {
   max-width: 100%;
   height: auto !important;

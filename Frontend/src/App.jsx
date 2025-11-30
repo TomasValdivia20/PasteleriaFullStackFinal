@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 /* --- BLOQUE DE CSS --- */
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./css/general.css";
@@ -46,14 +46,11 @@ import BackofficeUsuario from "./Backoffice/UsuarioBackoffice";
 import BackofficeReportes from "./Backoffice/Reportes";
 
 function App() {
-  const location = useLocation();
-  const isBackoffice = location.pathname.startsWith("/backoffice");
-
   return (
     <UserProvider>
       <CarritoProvider>
-          {!isBackoffice && <Header />}
-          <main className={!isBackoffice ? "main-content" : ""}>
+          <Header />
+          <main className="main-content">
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/acercadenosotros" element={<AcercaDeNosotros />} />
@@ -142,7 +139,7 @@ function App() {
               <Route path="/contacto" element={<Contacto />} />
               </Routes>
           </main>
-          {!isBackoffice && <Footer />}
+          <Footer />
       </CarritoProvider>
     </UserProvider>
   );
