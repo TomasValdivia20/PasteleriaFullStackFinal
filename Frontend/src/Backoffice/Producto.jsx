@@ -220,10 +220,6 @@ export default function Producto() {
                   <div className="sb-nav-link-icon"><i className="fas fa-columns" /></div>
                   Reportes
                 </Link>
-                <Link to="/backoffice/Perfil" className="nav-link">
-                  <div className="sb-nav-link-icon"><i className="fas fa-user" /></div>
-                  Perfil
-                </Link>
               </div>
             </div>
             <div className="sb-sidenav-footer">

@@ -208,10 +208,6 @@ export default function UsuarioBackoffice() {
                   <div className="sb-nav-link-icon"><i className="fas fa-columns" /></div>
                   Reportes
                 </Link>
-                <Link to="/backoffice/Perfil" className="nav-link">
-                  <div className="sb-nav-link-icon"><i className="fas fa-user" /></div>
-                  Perfil
-                </Link>
               </div>
             </div>
             <div className="sb-sidenav-footer">
@@ -391,7 +387,7 @@ export default function UsuarioBackoffice() {
                         name="rut"
                         value={formData.rut}
                         onChange={handleInputChange}
-                        placeholder="12345678-9"
+                        placeholder="12345678-5"
                         required
                       />
                     </div>
