@@ -1,5 +1,6 @@
 package com.milsabores.backend.controller;
 
+import com.milsabores.backend.dto.CrearOrdenRequest;
 import com.milsabores.backend.model.Orden;
 import com.milsabores.backend.service.OrdenService;
 import org.slf4j.Logger;
@@ -44,6 +45,33 @@ public class OrdenController {
         } catch (Exception e) {
             logger.error("❌ [GET] Error al listar órdenes: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    /**
+     * Crear nueva orden desde carrito de compras (PÚBLICO)
+     * POST /api/ordenes/crear
+     */
+    @PostMapping("/crear")
+    public ResponseEntity<?> crearOrden(@RequestBody CrearOrdenRequest request) {
+        logger.info("🛒 [POST] /api/ordenes/crear - Usuario ID: {}, Items: {}", 
+            request.getUsuarioId(), request.getItems().size());
+        
+        try {
+            Orden ordenCreada = ordenService.crearOrden(request);
+            
+            logger.info("✅ [POST] Orden creada exitosamente - ID: {}, Total: ${}", 
+                ordenCreada.getId(), ordenCreada.getTotal());
+            
+            return ResponseEntity.status(HttpStatus.CREATED).body(ordenCreada);
+        } catch (RuntimeException e) {
+            logger.error("❌ [POST] Error al crear orden: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            logger.error("❌ [POST] Error interno al crear orden: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("error", "Error al procesar la orden"));
         }
     }
 

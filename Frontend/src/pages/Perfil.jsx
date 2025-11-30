@@ -2,27 +2,83 @@ import "../css/general.css";
 import "../css/Perfil.css";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useUser } from "../context/UserContext";
+import api from "../api";
 
 export default function Perfil() {
-  const [usuario, setUsuario] = useState(null);
+  const [usuarioCompleto, setUsuarioCompleto] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const { usuario: usuarioLocal, logout } = useUser();
   const navigate = useNavigate();
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("usuario");
-    if (storedUser) {
-      setUsuario(JSON.parse(storedUser));
-    } else {
-      navigate("/login"); // si no hay sesión, redirige a login
-    }
-  }, [navigate]);
+    const cargarDatosUsuario = async () => {
+      // Verificar si hay usuario en contexto/localStorage
+      if (!usuarioLocal || !usuarioLocal.id) {
+        navigate("/login");
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setError(null);
+
+        console.log("📡 [PERFIL] Cargando datos del usuario ID:", usuarioLocal.id);
+        
+        // Cargar datos actualizados desde el backend
+        const response = await api.get(`/usuarios/${usuarioLocal.id}`);
+        
+        console.log("✅ [PERFIL] Datos cargados:", response.data);
+        setUsuarioCompleto(response.data);
+        
+      } catch (err) {
+        console.error("❌ [PERFIL] Error al cargar datos:", err);
+        setError("Error al cargar los datos del usuario");
+        
+        // Si el error es 401/403, cerrar sesión
+        if (err.response?.status === 401 || err.response?.status === 403) {
+          logout();
+          navigate("/login");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    cargarDatosUsuario();
+  }, [usuarioLocal, navigate, logout]);
 
   const handleLogout = () => {
-    localStorage.removeItem("usuario");
+    logout();
     navigate("/login");
   };
 
-  if (!usuario) {
-    return <p className="text-center mt-10">Cargando datos...</p>;
+  if (loading) {
+    return (
+      <div className="perfil-container">
+        <div className="perfil-card">
+          <p className="text-center">Cargando datos...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="perfil-container">
+        <div className="perfil-card">
+          <p className="text-center text-danger">{error}</p>
+          <button className="btn-logout" onClick={() => navigate("/")}>
+            Volver al inicio
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!usuarioCompleto) {
+    return null;
   }
 
   return (
@@ -31,12 +87,13 @@ export default function Perfil() {
         <h2>👤 Perfil de Usuario</h2>
 
         <div className="perfil-info">
-          <p><strong>RUT:</strong> {usuario.rut}</p>
-          <p><strong>Nombre:</strong> {usuario.nombre} {usuario.apellido}</p>
-          <p><strong>Correo:</strong> {usuario.correo}</p>
-          <p><strong>Región:</strong> {usuario.region}</p>
-          <p><strong>Comuna:</strong> {usuario.comuna}</p>
-          <p><strong>Dirección:</strong> {usuario.direccion}</p>
+          <p><strong>RUT:</strong> {usuarioCompleto.rut}</p>
+          <p><strong>Nombre:</strong> {usuarioCompleto.nombre} {usuarioCompleto.apellido}</p>
+          <p><strong>Correo:</strong> {usuarioCompleto.correo}</p>
+          <p><strong>Región:</strong> {usuarioCompleto.region}</p>
+          <p><strong>Comuna:</strong> {usuarioCompleto.comuna}</p>
+          <p><strong>Dirección:</strong> {usuarioCompleto.direccion}</p>
+          <p><strong>Rol:</strong> <span className="badge-rol">{usuarioCompleto.rol?.nombre || 'USUARIO'}</span></p>
         </div>
 
         <button className="btn-logout" onClick={handleLogout}>

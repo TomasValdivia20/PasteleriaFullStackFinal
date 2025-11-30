@@ -1,11 +1,20 @@
 package com.milsabores.backend.service;
 
+import com.milsabores.backend.dto.CrearOrdenRequest;
+import com.milsabores.backend.model.DetalleOrden;
 import com.milsabores.backend.model.Orden;
+import com.milsabores.backend.model.Usuario;
+import com.milsabores.backend.model.Producto;
+import com.milsabores.backend.model.VarianteProducto;
+import com.milsabores.backend.repository.DetalleOrdenRepository;
 import com.milsabores.backend.repository.OrdenRepository;
+import com.milsabores.backend.repository.UsuarioRepository;
+import com.milsabores.backend.repository.ProductoRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -22,10 +31,21 @@ public class OrdenService {
 
     private static final Logger logger = LoggerFactory.getLogger(OrdenService.class);
     private final OrdenRepository ordenRepository;
+    private final DetalleOrdenRepository detalleOrdenRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final ProductoRepository productoRepository;
 
     @Autowired
-    public OrdenService(OrdenRepository ordenRepository) {
+    public OrdenService(
+        OrdenRepository ordenRepository,
+        DetalleOrdenRepository detalleOrdenRepository,
+        UsuarioRepository usuarioRepository,
+        ProductoRepository productoRepository
+    ) {
         this.ordenRepository = ordenRepository;
+        this.detalleOrdenRepository = detalleOrdenRepository;
+        this.usuarioRepository = usuarioRepository;
+        this.productoRepository = productoRepository;
     }
 
     /**
@@ -36,6 +56,109 @@ public class OrdenService {
         List<Orden> ordenes = ordenRepository.findAllByOrderByFechaDesc();
         logger.info("📊 [ORDEN] Total órdenes: {}", ordenes.size());
         return ordenes;
+    }
+
+    /**
+     * Crear nueva orden desde carrito de compras
+     * Valida stock, descuenta inventario y guarda orden con detalles
+     */
+    @Transactional
+    public Orden crearOrden(CrearOrdenRequest request) {
+        logger.info("🛒 [CREAR ORDEN] Iniciando creación de orden para usuario ID: {}", request.getUsuarioId());
+        
+        // 1. Validar usuario existe
+        Usuario usuario = usuarioRepository.findById(request.getUsuarioId())
+            .orElseThrow(() -> {
+                logger.error("❌ Usuario no encontrado: {}", request.getUsuarioId());
+                return new RuntimeException("Usuario no encontrado");
+            });
+        
+        // 2. Validar stock disponible para todos los items
+        for (CrearOrdenRequest.ItemOrden item : request.getItems()) {
+            Producto producto = productoRepository.findById(item.getProductoId())
+                .orElseThrow(() -> {
+                    logger.error("❌ Producto no encontrado: {}", item.getProductoId());
+                    return new RuntimeException("Producto no encontrado: " + item.getNombreProducto());
+                });
+            
+            // Si tiene variante, validar stock de la variante
+            if (item.getVarianteId() != null) {
+                VarianteProducto variante = producto.getVariantes().stream()
+                    .filter(v -> v.getId().equals(item.getVarianteId()))
+                    .findFirst()
+                    .orElseThrow(() -> {
+                        logger.error("❌ Variante no encontrada: {}", item.getVarianteId());
+                        return new RuntimeException("Variante no encontrada");
+                    });
+                
+                if (variante.getStock() < item.getCantidad()) {
+                    logger.error("❌ Stock insuficiente - Producto: {}, Variante: {}, Stock: {}, Solicitado: {}", 
+                        producto.getNombre(), variante.getNombre(), variante.getStock(), item.getCantidad());
+                    throw new RuntimeException("Stock insuficiente para " + producto.getNombre() + " - " + variante.getNombre());
+                }
+            }
+        }
+        
+        // 3. Crear orden principal
+        Orden orden = new Orden();
+        orden.setUsuario(usuario);
+        orden.setFecha(LocalDateTime.now());
+        orden.setTotal(request.getTotalOrden());
+        orden.setEstado("COMPLETADA");
+        
+        Orden ordenGuardada = ordenRepository.save(orden);
+        logger.info("✅ [ORDEN] Orden creada con ID: {}", ordenGuardada.getId());
+        
+        // 4. Crear detalles y descontar stock
+        List<DetalleOrden> detalles = new ArrayList<>();
+        
+        for (CrearOrdenRequest.ItemOrden item : request.getItems()) {
+            Producto producto = productoRepository.findById(item.getProductoId()).get();
+            
+            // Crear detalle de orden
+            DetalleOrden detalle = new DetalleOrden();
+            detalle.setOrden(ordenGuardada);
+            detalle.setProducto(producto);
+            detalle.setCantidad(item.getCantidad());
+            detalle.setPrecioUnitario(item.getPrecioUnitario());
+            detalle.setSubtotal(item.getCantidad() * item.getPrecioUnitario());
+            
+            // Si tiene variante, asociarla y descontar stock
+            if (item.getVarianteId() != null) {
+                VarianteProducto variante = producto.getVariantes().stream()
+                    .filter(v -> v.getId().equals(item.getVarianteId()))
+                    .findFirst()
+                    .get();
+                
+                detalle.setVariante(variante);
+                
+                // DESCONTAR STOCK
+                int nuevoStock = variante.getStock() - item.getCantidad();
+                variante.setStock(nuevoStock);
+                
+                logger.info("📉 [STOCK] Producto: {}, Variante: {}, Stock anterior: {}, Cantidad vendida: {}, Stock nuevo: {}", 
+                    producto.getNombre(), variante.getNombre(), variante.getStock() + item.getCantidad(), 
+                    item.getCantidad(), nuevoStock);
+            }
+            
+            detalles.add(detalle);
+        }
+        
+        // 5. Guardar detalles
+        detalleOrdenRepository.saveAll(detalles);
+        ordenGuardada.setDetalles(detalles);
+        
+        // 6. Guardar cambios en productos (actualiza stock)
+        for (CrearOrdenRequest.ItemOrden item : request.getItems()) {
+            if (item.getVarianteId() != null) {
+                productoRepository.save(productoRepository.findById(item.getProductoId()).get());
+            }
+        }
+        
+        logger.info("✅ [CREAR ORDEN] Orden completada - ID: {}, Total: ${}, Items: {}", 
+            ordenGuardada.getId(), ordenGuardada.getTotal(), detalles.size());
+        
+        return ordenGuardada;
     }
 
     /**

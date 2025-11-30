@@ -3,6 +3,7 @@ import "../css/Carrito.css";
 import { useCarrito } from "../context/CarritoContext";
 import { useUser } from "../context/UserContext";
 import { useNavigate } from "react-router-dom";
+import api from "../api";
 
 export default function Carrito() {
   const { carrito, eliminarDelCarrito, vaciarCarrito } = useCarrito();
@@ -13,6 +14,7 @@ export default function Carrito() {
   const [descuentoAplicado, setDescuentoAplicado] = useState(false);
   const [mensajeDescuento, setMensajeDescuento] = useState("");
   const [errorConfirmacion, setErrorConfirmacion] = useState("");
+  const [procesandoCompra, setProcesandoCompra] = useState(false);
 
   const CODIGO_DESCUENTO = "PMS50AGNOS";
   const TASA_DESCUENTO = 0.10; // 10%
@@ -43,7 +45,7 @@ export default function Carrito() {
   };
   
 
-  const handleConfirmarCompra = () => {
+  const handleConfirmarCompra = async () => {
     
     // Validacion si es que hay usuario
     if (!usuario) {
@@ -62,17 +64,59 @@ export default function Carrito() {
     }
     // --- FIN DE LA VALIDACIÓN ---
 
-    // Si el usuario SÍ existe, continúa con la lógica normal
-    navigate("/confirmacion", {
-      state: {
-        items: [...carrito],
-        subtotal: subtotal,
-        descuento: montoDescuento,
-        total: totalFinal,
-      },
-    });
+    try {
+      setProcesandoCompra(true);
+      setErrorConfirmacion("");
 
-    vaciarCarrito();
+      // Preparar datos de la orden para el backend
+      const ordenData = {
+        usuarioId: usuario.id,
+        totalOrden: Math.round(totalFinal), // Asegurar que sea entero
+        items: carrito.map(item => ({
+          productoId: item.productoId,
+          varianteId: item.varianteId || null,
+          cantidad: item.cantidad,
+          precioUnitario: item.precio,
+          nombreProducto: item.nombre,
+          tamano: item.tamano || "Tamaño único"
+        }))
+      };
+
+      console.log("📦 [ORDEN] Enviando orden al backend:", ordenData);
+
+      // Enviar al backend
+      const response = await api.post('/ordenes/crear', ordenData);
+
+      console.log("✅ [ORDEN] Respuesta del backend:", response.data);
+
+      // Si todo salió bien, navegar a confirmación
+      navigate("/confirmacion", {
+        state: {
+          items: [...carrito],
+          subtotal: subtotal,
+          descuento: montoDescuento,
+          total: totalFinal,
+          ordenId: response.data.id
+        },
+      });
+
+      // Vaciar carrito después de crear la orden
+      vaciarCarrito();
+
+    } catch (error) {
+      console.error("❌ [ORDEN] Error al crear orden:", error);
+      
+      const mensajeError = error.response?.data?.error || 
+        "Error al procesar la compra. Por favor intenta nuevamente.";
+      
+      setErrorConfirmacion(mensajeError);
+      
+      setTimeout(() => {
+        setErrorConfirmacion("");
+      }, 5000);
+    } finally {
+      setProcesandoCompra(false);
+    }
   };
 
   return (
@@ -166,14 +210,15 @@ export default function Carrito() {
           )}
 
             <div className="carrito-botones">
-              <button className="btn-vaciar" onClick={vaciarCarrito}>
+              <button className="btn-vaciar" onClick={vaciarCarrito} disabled={procesandoCompra}>
                 Vaciar carrito
               </button>
               <button
                 className="btn-comprar"
                 onClick={handleConfirmarCompra}
+                disabled={procesandoCompra}
               >
-                Confirmar compra
+                {procesandoCompra ? "Procesando..." : "Confirmar compra"}
               </button>
             </div>
           </div>

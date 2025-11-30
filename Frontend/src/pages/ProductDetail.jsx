@@ -65,7 +65,8 @@ const ProductDetail = () => {
     const imagenUrl = resolveProductImageUrl(producto);
 
     const itemCarrito = {
-      id: producto.id,
+      id: `${producto.id}-${tamanoSeleccionado.id}`, // ID único para el carrito (producto + variante)
+      productoId: producto.id, // ID del producto para backend
       nombre: producto.nombre,
       imagen: imagenUrl, // Usar URL de Supabase o asset local
       precio: tamanoSeleccionado.precio,
