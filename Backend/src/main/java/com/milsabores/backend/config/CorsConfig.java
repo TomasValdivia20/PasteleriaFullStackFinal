@@ -1,5 +1,8 @@
 package com.milsabores.backend.config;
 
+import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,8 +22,26 @@ import java.util.List;
 @Configuration
 public class CorsConfig {
 
+    private static final Logger logger = LoggerFactory.getLogger(CorsConfig.class);
+
     @Value("${cors.allowed.origins:http://localhost:5173,http://localhost:3000}")
     private String allowedOriginsString;
+
+    @PostConstruct
+    public void logCorsConfiguration() {
+        logger.info("========================================");
+        logger.info("🔧 [CORS CONFIG] Inicializando configuración CORS");
+        logger.info("📋 [CORS CONFIG] Orígenes permitidos (raw): {}", allowedOriginsString);
+        List<String> origins = Arrays.asList(allowedOriginsString.split(","));
+        origins.forEach(origin -> 
+            logger.info("   ✅ Permitido: {}", origin.trim())
+        );
+        logger.info("🔓 [CORS CONFIG] Métodos permitidos: GET, POST, PUT, DELETE, OPTIONS, PATCH");
+        logger.info("🍪 [CORS CONFIG] Credenciales: HABILITADAS");
+        logger.info("⏱️  [CORS CONFIG] MaxAge preflight: 3600s (1 hora)");
+        logger.info("🎯 [CORS CONFIG] Aplicado a: /api/**");
+        logger.info("========================================");
+    }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {

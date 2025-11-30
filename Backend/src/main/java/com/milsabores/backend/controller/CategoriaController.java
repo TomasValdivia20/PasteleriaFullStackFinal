@@ -2,6 +2,9 @@ package com.milsabores.backend.controller;
 
 import com.milsabores.backend.model.Categoria;
 import com.milsabores.backend.service.CategoriaService;
+import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +20,7 @@ import java.util.List;
 @RequestMapping("/api/categorias")
 public class CategoriaController {
 
+    private static final Logger logger = LoggerFactory.getLogger(CategoriaController.class);
     private final CategoriaService categoriaService;
 
     @Autowired
@@ -25,8 +29,15 @@ public class CategoriaController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Categoria>> listarCategorias() {
+    public ResponseEntity<List<Categoria>> listarCategorias(HttpServletRequest request) {
+        logger.info("📥 [REQUEST] GET /api/categorias");
+        logger.info("   Origin: {}", request.getHeader("Origin"));
+        logger.info("   User-Agent: {}", request.getHeader("User-Agent"));
+        logger.info("   Method: {}", request.getMethod());
+        
         List<Categoria> categorias = categoriaService.obtenerTodas();
+        
+        logger.info("📤 [RESPONSE] {} categorías encontradas", categorias.size());
         return ResponseEntity.ok(categorias);
     }
 
