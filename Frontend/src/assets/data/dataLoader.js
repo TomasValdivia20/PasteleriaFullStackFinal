@@ -7,14 +7,41 @@ export const cargarCategorias = async () => {
   try {
     const response = await api.get('/categorias');
     
-    console.log('✅ [dataLoader] Categorías cargadas exitosamente');
-    console.log(`   Total de categorías: ${response.data?.length || 0}`);
+    // ===== VALIDACIÓN CRÍTICA: Detectar si el backend respondió con HTML =====
+    if (typeof response.data === 'string') {
+      console.error('❌ [dataLoader] ERROR CRÍTICO: Backend respondió con STRING en vez de JSON');
+      console.error('   Esto usualmente significa que la URL está mal configurada');
+      console.error('   Tipo recibido:', typeof response.data);
+      console.error('   Longitud:', response.data.length);
+      console.error('   Primeros 100 caracteres:', response.data.substring(0, 100));
+      
+      // Detectar si es HTML
+      if (response.data.trim().startsWith('<!doctype') || response.data.trim().startsWith('<html')) {
+        console.error('   ⚠️  Es HTML del frontend, no JSON del backend API');
+        console.error('   ⚠️  Verifica que VITE_API_URL termine en /api');
+        console.error('   ⚠️  Ejemplo correcto: https://backend.railway.app/api');
+        throw new Error('Backend respondió con HTML. Verifica VITE_API_URL incluya /api al final');
+      }
+      
+      throw new Error('Backend respondió con string en vez de array JSON');
+    }
     
-    if (!response.data || response.data.length === 0) {
+    // Validar que sea un array
+    if (!Array.isArray(response.data)) {
+      console.error('❌ [dataLoader] ERROR: response.data no es un array');
+      console.error('   Tipo recibido:', typeof response.data);
+      console.error('   Valor:', response.data);
+      throw new Error('Backend respondió con formato inválido (esperado: array)');
+    }
+    
+    console.log('✅ [dataLoader] Categorías cargadas exitosamente');
+    console.log(`   Total de categorías: ${response.data.length}`);
+    
+    if (response.data.length === 0) {
       console.warn('⚠️  [dataLoader] La respuesta de categorías está vacía');
     }
     
-    return response.data || [];
+    return response.data;
   } catch (error) {
     console.error('❌ [dataLoader] Error cargando categorías:', {
       message: error.message,
@@ -37,14 +64,26 @@ export const cargarProductos = async () => {
   try {
     const response = await api.get('/productos');
     
-    console.log('✅ [dataLoader] Productos cargados exitosamente');
-    console.log(`   Total de productos: ${response.data?.length || 0}`);
+    // ===== VALIDACIÓN: Detectar respuestas incorrectas =====
+    if (typeof response.data === 'string') {
+      console.error('❌ [dataLoader] ERROR: Backend respondió con STRING en vez de JSON');
+      throw new Error('Backend respondió con formato inválido');
+    }
     
-    if (!response.data || response.data.length === 0) {
+    if (!Array.isArray(response.data)) {
+      console.error('❌ [dataLoader] ERROR: response.data no es un array');
+      console.error('   Tipo recibido:', typeof response.data);
+      throw new Error('Backend respondió con formato inválido (esperado: array)');
+    }
+    
+    console.log('✅ [dataLoader] Productos cargados exitosamente');
+    console.log(`   Total de productos: ${response.data.length}`);
+    
+    if (response.data.length === 0) {
       console.warn('⚠️  [dataLoader] La respuesta de productos está vacía');
     }
     
-    return response.data || [];
+    return response.data;
   } catch (error) {
     console.error('❌ [dataLoader] Error cargando productos:', {
       message: error.message,

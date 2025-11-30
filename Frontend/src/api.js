@@ -3,6 +3,22 @@ import axios from 'axios';
 // Configuración de la URL base desde variable de entorno
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 
+// ===== VALIDACIÓN DE URL =====
+// Detectar configuraciones incorrectas que causan errores silenciosos
+if (BASE_URL && !BASE_URL.startsWith('http://') && !BASE_URL.startsWith('https://')) {
+    console.error('❌ [API CONFIG ERROR] URL malformada - falta protocolo (http:// o https://)');
+    console.error('   URL actual:', BASE_URL);
+    console.error('   ⚠️  Esto causará que las peticiones fallen');
+    console.error('   ✅ Debe ser: https://backend.railway.app/api');
+    console.error('   ❌ Incorrecto: backend.railway.app/api');
+}
+
+if (BASE_URL && !BASE_URL.includes('/api')) {
+    console.warn('⚠️  [API CONFIG WARNING] URL no incluye /api');
+    console.warn('   URL actual:', BASE_URL);
+    console.warn('   ✅ Recomendado: https://backend.railway.app/api');
+}
+
 console.log('🔧 [API CONFIG] Inicializando cliente API con baseURL:', BASE_URL);
 
 const api = axios.create({
@@ -50,6 +66,22 @@ api.interceptors.response.use(
         console.log(`   Status: ${response.status} ${response.statusText}`);
         console.log(`   Duration: ${duration}ms`);
         console.log(`   Data Type: ${Array.isArray(response.data) ? 'Array' : typeof response.data}`);
+        
+        // ===== VALIDACIÓN DE RESPUESTA =====
+        // Detectar cuando el backend responde con HTML en vez de JSON
+        if (typeof response.data === 'string' && response.data.trim().startsWith('<!doctype') || response.data.trim().startsWith('<html')) {
+            console.error('❌ [API RESPONSE ERROR] Backend respondió con HTML en vez de JSON');
+            console.error('   Esto significa que la URL está apuntando al frontend, no al backend API');
+            console.error('   URL solicitada:', response.config.url);
+            console.error('   Base URL:', response.config.baseURL);
+            console.error('   ⚠️  Posibles causas:');
+            console.error('      1. VITE_API_URL no incluye /api al final');
+            console.error('      2. Backend no está sirviendo la API en esa ruta');
+            console.error('      3. Problema de routing en el servidor');
+            
+            // Lanzar error para que se maneje en el catch
+            throw new Error('Backend respondió con HTML en vez de JSON. Verifica VITE_API_URL incluya /api');
+        }
         
         if (Array.isArray(response.data)) {
             console.log(`   Data Length: ${response.data.length} items`);
