@@ -204,7 +204,7 @@ public class UsuarioService {
             throw new IllegalArgumentException("El RUT es obligatorio");
         }
         if (!RUT_PATTERN.matcher(usuario.getRut()).matches()) {
-            throw new IllegalArgumentException("Formato de RUT inválido. Use formato: 12345678-9");
+            throw new IllegalArgumentException("Formato de RUT inválido. Use formato: 12345678-5");
         }
         if (!validarDigitoVerificadorRut(usuario.getRut())) {
             throw new IllegalArgumentException("El dígito verificador del RUT es inválido");
