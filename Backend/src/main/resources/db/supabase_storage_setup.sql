@@ -26,7 +26,9 @@ ON CONFLICT (id) DO UPDATE SET
 
 -- Policy: Lectura pública (SELECT)
 -- Permite a cualquier usuario ver las imágenes
-CREATE POLICY IF NOT EXISTS "Public Access - SELECT"
+-- NOTA: PostgreSQL no soporta IF NOT EXISTS en CREATE POLICY, usamos DROP primero
+DROP POLICY IF EXISTS "Public Access - SELECT" ON storage.objects;
+CREATE POLICY "Public Access - SELECT"
 ON storage.objects FOR SELECT
 USING (bucket_id = 'pasteles');
 
@@ -36,20 +38,23 @@ USING (bucket_id = 'pasteles');
 -- Estas policies permiten que el backend (con supabase.key) pueda subir/eliminar
 
 -- Policy: Upload de imágenes (INSERT)
-CREATE POLICY IF NOT EXISTS "Backend Upload - INSERT"
+DROP POLICY IF EXISTS "Backend Upload - INSERT" ON storage.objects;
+CREATE POLICY "Backend Upload - INSERT"
 ON storage.objects FOR INSERT
 TO authenticated
 WITH CHECK (bucket_id = 'pasteles');
 
 -- Policy: Actualizar imágenes (UPDATE)
-CREATE POLICY IF NOT EXISTS "Backend Update - UPDATE"
+DROP POLICY IF EXISTS "Backend Update - UPDATE" ON storage.objects;
+CREATE POLICY "Backend Update - UPDATE"
 ON storage.objects FOR UPDATE
 TO authenticated
 USING (bucket_id = 'pasteles')
 WITH CHECK (bucket_id = 'pasteles');
 
 -- Policy: Eliminar imágenes (DELETE)
-CREATE POLICY IF NOT EXISTS "Backend Delete - DELETE"
+DROP POLICY IF EXISTS "Backend Delete - DELETE" ON storage.objects;
+CREATE POLICY "Backend Delete - DELETE"
 ON storage.objects FOR DELETE
 TO authenticated
 USING (bucket_id = 'pasteles');
