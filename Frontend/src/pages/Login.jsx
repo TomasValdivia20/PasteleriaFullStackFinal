@@ -4,16 +4,17 @@ import "../css/general.css";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../context/UserContext";
+import api from "../api";
 
 export default function Login() {
   const [correo, setCorreo] = useState("");
   const [contrasena, setContrasena] = useState("");
   const [mensaje, setMensaje] = useState("");
-  const [cargando, setCargando] = useState(false); // 🟢 Nuevo estado
+  const [cargando, setCargando] = useState(false);
   const navigate = useNavigate();
   const { login } = useUser();
 
-   const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setMensaje("");
 
@@ -22,47 +23,56 @@ export default function Login() {
       return;
     }
 
+    setCargando(true);
+
     try {
-      const response = await fetch(`http://localhost:3001/usuarios?correo=${correo}`);
-      const usuarios = await response.json();
+      console.log("🔐 [LOGIN] Intentando autenticar:", correo);
 
-      if (usuarios.length === 0) {
-        setMensaje("❌ Correo no registrado.");
-        return;
+      const response = await api.post('/auth/login', {
+        correo: correo.trim(),
+        password: contrasena
+      });
+
+      const data = response.data;
+
+      if (data.success) {
+        console.log("✅ [LOGIN] Autenticación exitosa:", data);
+        
+        // Guardar usuario en contexto
+        login({
+          id: data.id,
+          nombre: data.nombre,
+          apellido: data.apellido,
+          correo: data.correo,
+          rol: data.rol
+        });
+
+        setMensaje(`✅ ${data.mensaje} 🎉`);
+
+        // Redirigir según rol
+        setTimeout(() => {
+          if (data.rol === 'ADMIN') {
+            navigate('/backoffice');
+          } else {
+            navigate('/');
+          }
+        }, 1000);
+      } else {
+        console.warn("⚠️ [LOGIN] Autenticación fallida:", data.mensaje);
+        setMensaje(`❌ ${data.mensaje}`);
       }
-
-      const usuario = usuarios[0];
-
-      if (usuario.contrasena !== contrasena) {
-        setMensaje("❌ Contraseña incorrecta.");
-        return;
-      }
-
-      login(usuario);
-      setMensaje("✅ Inicio de sesión exitoso 🎉");
-
-      setTimeout(() => navigate("/"), 1000);
     } catch (error) {
-      console.error("Error:", error);
-
-      // ⚙️ MODO DEMO: si no hay servidor, intenta con localStorage
-      const usuariosLocales = JSON.parse(localStorage.getItem("usuariosDemo")) || [];
-      const usuario = usuariosLocales.find(u => u.correo === correo);
-
-      if (!usuario) {
-        setMensaje("❌ Correo no registrado (modo demo)");
-        return;
+      console.error("❌ [LOGIN] Error en autenticación:", error);
+      
+      if (error.response?.status === 401) {
+        setMensaje("❌ Credenciales incorrectas");
+      } else if (error.response?.data?.mensaje) {
+        setMensaje(`❌ ${error.response.data.mensaje}`);
+      } else {
+        setMensaje("❌ Error de conexión. Verifica que el servidor esté activo.");
       }
-
-      if (usuario.contrasena !== contrasena) {
-        setMensaje("❌ Contraseña incorrecta (modo demo)");
-        return;
-      }
-
-      login(usuario);
-      setMensaje("✅ Inicio de sesión exitoso (modo demo)");
-
-      setTimeout(() => navigate("/"), 1000);
+    } finally {
+      setCargando(false);
     }
   };
 

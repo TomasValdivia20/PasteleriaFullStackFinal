@@ -49,6 +49,12 @@ export default function Header() {
           {usuario ? (
             <>
               <li><Link to="/perfil">Mi Cuenta</Link></li>
+              
+              {/* 🔒 Mostrar enlace a Backoffice SOLO si es ADMIN */}
+              {usuario.rol === 'ADMIN' && (
+                <li><Link to="/backoffice">Empleados</Link></li>
+              )}
+              
               <li>
                 <button onClick={handleLogout} className="logout-btn">
                   Cerrar Sesión
@@ -61,8 +67,6 @@ export default function Header() {
               <li><Link to="/login">Iniciar Sesión</Link></li>
             </>
           )}
-
-          <li><Link to="/backoffice">Empleados</Link></li>
         </ul>
 
         {/* 🔹 Carrito visible en la parte derecha */}
