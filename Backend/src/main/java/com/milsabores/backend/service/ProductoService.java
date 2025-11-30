@@ -124,6 +124,24 @@ public class ProductoService {
         if (!categoriaService.existe(producto.getCategoria().getId())) {
             throw new RuntimeException("La categoría asignada no existe");
         }
+        
+        // Validar que tenga al menos 1 variante (tamaño)
+        if (producto.getVariantes() == null || producto.getVariantes().isEmpty()) {
+            throw new IllegalArgumentException("El producto debe tener al menos 1 variante (tamaño)");
+        }
+        
+        // Validar cada variante
+        for (VarianteProducto variante : producto.getVariantes()) {
+            if (variante.getNombre() == null || variante.getNombre().trim().isEmpty()) {
+                throw new IllegalArgumentException("Cada variante debe tener un nombre (ej: '12 personas')");
+            }
+            if (variante.getPrecio() == null || variante.getPrecio() < 0) {
+                throw new IllegalArgumentException("Cada variante debe tener un precio válido");
+            }
+            if (variante.getStock() != null && variante.getStock() < 0) {
+                throw new IllegalArgumentException("El stock no puede ser negativo");
+            }
+        }
     }
 
     /**

@@ -14,7 +14,8 @@ export default function Producto() {
     descripcion: '',
     precioBase: '',
     imagen: '',
-    categoriaId: ''
+    categoriaId: '',
+    variantes: [{ nombre: '', precio: '', stock: '', infoNutricional: '' }]
   });
   const [mensaje, setMensaje] = useState({ texto: '', tipo: '' });
 
@@ -44,9 +45,38 @@ export default function Producto() {
     setFormData({ ...formData, [name]: value });
   };
 
+  const handleVarianteChange = (index, field, value) => {
+    const nuevasVariantes = [...formData.variantes];
+    nuevasVariantes[index][field] = value;
+    setFormData({ ...formData, variantes: nuevasVariantes });
+  };
+
+  const agregarVariante = () => {
+    setFormData({
+      ...formData,
+      variantes: [...formData.variantes, { nombre: '', precio: '', stock: '', infoNutricional: '' }]
+    });
+  };
+
+  const eliminarVariante = (index) => {
+    if (formData.variantes.length <= 1) {
+      mostrarMensaje('Debe haber al menos 1 variante (tamaño)', 'error');
+      return;
+    }
+    const nuevasVariantes = formData.variantes.filter((_, i) => i !== index);
+    setFormData({ ...formData, variantes: nuevasVariantes });
+  };
+
   const abrirFormularioNuevo = () => {
     setProductoEditando(null);
-    setFormData({ nombre: '', descripcion: '', precioBase: '', imagen: '', categoriaId: '' });
+    setFormData({ 
+      nombre: '', 
+      descripcion: '', 
+      precioBase: '', 
+      imagen: '', 
+      categoriaId: '',
+      variantes: [{ nombre: '', precio: '', stock: '', infoNutricional: '' }]
+    });
     setMostrarFormulario(true);
   };
 
@@ -57,7 +87,15 @@ export default function Producto() {
       descripcion: producto.descripcion || '',
       precioBase: producto.precioBase || '',
       imagen: producto.imagen || '',
-      categoriaId: producto.categoria?.id || ''
+      categoriaId: producto.categoria?.id || '',
+      variantes: producto.variantes && producto.variantes.length > 0 
+        ? producto.variantes.map(v => ({
+            nombre: v.nombre || '',
+            precio: v.precio || '',
+            stock: v.stock || '',
+            infoNutricional: v.infoNutricional || ''
+          }))
+        : [{ nombre: '', precio: '', stock: '', infoNutricional: '' }]
     });
     setMostrarFormulario(true);
   };
@@ -65,7 +103,14 @@ export default function Producto() {
   const cerrarFormulario = () => {
     setMostrarFormulario(false);
     setProductoEditando(null);
-    setFormData({ nombre: '', descripcion: '', precioBase: '', imagen: '', categoriaId: '' });
+    setFormData({ 
+      nombre: '', 
+      descripcion: '', 
+      precioBase: '', 
+      imagen: '', 
+      categoriaId: '',
+      variantes: [{ nombre: '', precio: '', stock: '', infoNutricional: '' }]
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -76,13 +121,32 @@ export default function Producto() {
       return;
     }
 
+    // Validar que haya al menos 1 variante
+    if (!formData.variantes || formData.variantes.length === 0) {
+      mostrarMensaje('Debe agregar al menos 1 variante (tamaño)', 'error');
+      return;
+    }
+
+    // Validar que todas las variantes tengan nombre y precio
+    const variantesValidas = formData.variantes.filter(v => v.nombre.trim() && v.precio);
+    if (variantesValidas.length === 0) {
+      mostrarMensaje('Al menos 1 variante debe tener nombre y precio', 'error');
+      return;
+    }
+
     try {
       const payload = {
         nombre: formData.nombre,
         descripcion: formData.descripcion,
         precioBase: parseFloat(formData.precioBase) || 0,
         imagen: formData.imagen,
-        categoria: { id: parseInt(formData.categoriaId) }
+        categoria: { id: parseInt(formData.categoriaId) },
+        variantes: variantesValidas.map(v => ({
+          nombre: v.nombre,
+          precio: parseFloat(v.precio) || 0,
+          stock: parseInt(v.stock) || 0,
+          infoNutricional: v.infoNutricional || ''
+        }))
       };
 
       if (productoEditando) {
@@ -203,13 +267,14 @@ export default function Producto() {
                             <th>Categoría</th>
                             <th>Descripción</th>
                             <th>Precio Base</th>
+                            <th>Variantes</th>
                             <th>Acciones</th>
                           </tr>
                         </thead>
                         <tbody>
                           {productos.length === 0 ? (
                             <tr>
-                              <td colSpan="6" className="text-center">No hay productos disponibles</td>
+                              <td colSpan="7" className="text-center">No hay productos disponibles</td>
                             </tr>
                           ) : (
                             productos.map((prod) => (
@@ -219,6 +284,13 @@ export default function Producto() {
                                 <td>{prod.categoria?.nombre || 'Sin categoría'}</td>
                                 <td>{prod.descripcion || 'Sin descripción'}</td>
                                 <td>${prod.precioBase?.toLocaleString('es-CL') || 0}</td>
+                                <td>
+                                  {prod.variantes && prod.variantes.length > 0 ? (
+                                    <span className="badge bg-primary">{prod.variantes.length} tamaño(s)</span>
+                                  ) : (
+                                    <span className="badge bg-warning text-dark">Sin variantes</span>
+                                  )}
+                                </td>
                                 <td>
                                   <button 
                                     className="btn btn-sm btn-warning me-2"
@@ -338,6 +410,99 @@ export default function Producto() {
                               placeholder="/assets/img/producto.jpg o URL Supabase"
                             />
                             <small className="text-muted">Path relativo o URL completa de Supabase</small>
+                          </div>
+
+                          {/* Sección de Variantes (Tamaños) */}
+                          <div className="mb-3">
+                            <div className="d-flex justify-content-between align-items-center mb-2">
+                              <label className="form-label mb-0">
+                                Variantes / Tamaños <span className="text-danger">*</span>
+                              </label>
+                              <button 
+                                type="button" 
+                                className="btn btn-sm btn-success"
+                                onClick={agregarVariante}
+                              >
+                                <i className="fas fa-plus"></i> Agregar Tamaño
+                              </button>
+                            </div>
+                            <small className="text-muted d-block mb-3">
+                              Ej: "12 personas", "16 personas", "Tamaño único"
+                            </small>
+
+                            {formData.variantes.map((variante, index) => (
+                              <div key={index} className="card mb-3">
+                                <div className="card-body">
+                                  <div className="d-flex justify-content-between align-items-center mb-2">
+                                    <h6 className="mb-0">Variante {index + 1}</h6>
+                                    {formData.variantes.length > 1 && (
+                                      <button
+                                        type="button"
+                                        className="btn btn-sm btn-danger"
+                                        onClick={() => eliminarVariante(index)}
+                                      >
+                                        <i className="fas fa-trash"></i>
+                                      </button>
+                                    )}
+                                  </div>
+
+                                  <div className="row">
+                                    <div className="col-md-6 mb-2">
+                                      <label className="form-label">
+                                        Nombre / Tamaño <span className="text-danger">*</span>
+                                      </label>
+                                      <input
+                                        type="text"
+                                        className="form-control"
+                                        value={variante.nombre}
+                                        onChange={(e) => handleVarianteChange(index, 'nombre', e.target.value)}
+                                        placeholder="Ej: 12 personas"
+                                        required
+                                      />
+                                    </div>
+
+                                    <div className="col-md-3 mb-2">
+                                      <label className="form-label">
+                                        Precio <span className="text-danger">*</span>
+                                      </label>
+                                      <input
+                                        type="number"
+                                        className="form-control"
+                                        value={variante.precio}
+                                        onChange={(e) => handleVarianteChange(index, 'precio', e.target.value)}
+                                        placeholder="35000"
+                                        min="0"
+                                        step="100"
+                                        required
+                                      />
+                                    </div>
+
+                                    <div className="col-md-3 mb-2">
+                                      <label className="form-label">Stock</label>
+                                      <input
+                                        type="number"
+                                        className="form-control"
+                                        value={variante.stock}
+                                        onChange={(e) => handleVarianteChange(index, 'stock', e.target.value)}
+                                        placeholder="0"
+                                        min="0"
+                                      />
+                                    </div>
+
+                                    <div className="col-12 mb-2">
+                                      <label className="form-label">Información Nutricional</label>
+                                      <textarea
+                                        className="form-control"
+                                        rows="2"
+                                        value={variante.infoNutricional}
+                                        onChange={(e) => handleVarianteChange(index, 'infoNutricional', e.target.value)}
+                                        placeholder="Opcional: Calorías, ingredientes, etc."
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
                           </div>
                         </div>
 

@@ -4,6 +4,7 @@ import { CarritoContext } from "../context/CarritoContext";
 import StickerInfoNutricional from "../components/StickerInfoNutricional.jsx";
 import { cargarProductoPorId } from "../assets/data/dataLoader";
 import { resolveProductImageUrl } from "../utils/assetHelpers";
+import placeholderImage from "../assets/img/product-thumb-1.png";
 import "../css/ProductDetail.css";
 
 const ProductDetail = () => {
@@ -127,7 +128,7 @@ const ProductDetail = () => {
             alt={producto.nombre}
             onError={(e) => {
               console.error(`❌ [ProductDetail] Error cargando imagen: ${e.target.src}`);
-              e.target.src = '/assets/img/product-thumb-1.png';
+              e.target.src = placeholderImage;
             }}
           />
           
