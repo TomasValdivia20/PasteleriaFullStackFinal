@@ -117,16 +117,23 @@ public class SecurityConfig {
     /**
      * Configuración de CORS
      * Permite peticiones desde el frontend configurado via variable de entorno
+     * IMPORTANTE: Usa setAllowedOriginPatterns para soportar wildcards (https://*.vercel.app)
      */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         
         // Parsear URLs del frontend (puede ser múltiples URLs separadas por coma)
-        List<String> allowedOrigins = Arrays.asList(frontendUrl.split(","));
+        // Soporta wildcards: https://*.vercel.app coincide con CUALQUIER subdominio
+        List<String> allowedOrigins = Arrays.asList(frontendUrl.split(","))
+                .stream()
+                .map(String::trim)
+                .toList();
+        
         logger.info("🌍 [CORS] Orígenes permitidos: {}", allowedOrigins);
         
-        configuration.setAllowedOrigins(allowedOrigins);
+        // CRÍTICO: setAllowedOriginPatterns (no setAllowedOrigins) para soportar wildcards
+        configuration.setAllowedOriginPatterns(allowedOrigins);
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
