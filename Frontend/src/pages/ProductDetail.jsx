@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { CarritoContext } from "../context/CarritoContext";
 import StickerInfoNutricional from "../components/StickerInfoNutricional.jsx";
 import { cargarProductoPorId } from "../assets/data/dataLoader";
+import { resolveProductImageUrl } from "../utils/assetHelpers";
 import "../css/ProductDetail.css";
 
 const ProductDetail = () => {
@@ -59,20 +60,13 @@ const ProductDetail = () => {
       return;
     }
 
-    // Prioridad: imagen principal de Supabase > imagen local
-    let imagenUrl = '/assets/img/product-thumb-1.png'; // placeholder
-    
-    if (producto.imagenes && producto.imagenes.length > 0) {
-      const imagenPrincipal = producto.imagenes.find(img => img.esPrincipal);
-      imagenUrl = imagenPrincipal ? imagenPrincipal.urlSupabase : producto.imagenes[0].urlSupabase;
-    } else if (producto.imagen) {
-      imagenUrl = producto.imagen;
-    }
+    // Resolver URL de imagen usando helper
+    const imagenUrl = resolveProductImageUrl(producto);
 
     const itemCarrito = {
       id: producto.id,
       nombre: producto.nombre,
-      imagen: imagenUrl, // Usar URL de Supabase o fallback
+      imagen: imagenUrl, // Usar URL de Supabase o asset local
       precio: tamanoSeleccionado.precio,
       varianteId: tamanoSeleccionado.id, // ID de la variante específica
       tamano: tamanoSeleccionado.nombre, // "12 personas", "16 personas", etc.
@@ -128,28 +122,31 @@ const ProductDetail = () => {
     <div className="producto-detalle">
       <div className="detalle-contenido">
         <div className="detalle-imagen">
-          {producto.imagenes && producto.imagenes.length > 0 ? (
-            <>
-              <img 
-                src={producto.imagenes.find(img => img.esPrincipal)?.urlSupabase || producto.imagenes[0].urlSupabase} 
-                alt={producto.nombre} 
-              />
-              {/* Galería de imágenes adicionales */}
-              {producto.imagenes.length > 1 && (
-                <div className="galeria-imagenes">
-                  {producto.imagenes.map((img) => (
-                    <img 
-                      key={img.id} 
-                      src={img.urlSupabase} 
-                      alt={`${producto.nombre} - ${img.orden}`}
-                      className={img.esPrincipal ? 'miniatura activa' : 'miniatura'}
-                    />
-                  ))}
-                </div>
-              )}
-            </>
-          ) : (
-            <img src={producto.imagen || '/assets/img/product-thumb-1.png'} alt={producto.nombre} />
+          <img 
+            src={resolveProductImageUrl(producto)} 
+            alt={producto.nombre}
+            onError={(e) => {
+              console.error(`❌ [ProductDetail] Error cargando imagen: ${e.target.src}`);
+              e.target.src = '/assets/img/product-thumb-1.png';
+            }}
+          />
+          
+          {/* Galería de imágenes adicionales de Supabase */}
+          {producto.imagenes && producto.imagenes.length > 1 && (
+            <div className="galeria-imagenes">
+              {producto.imagenes.map((img) => (
+                <img 
+                  key={img.id} 
+                  src={img.urlSupabase} 
+                  alt={`${producto.nombre} - ${img.orden}`}
+                  className={img.esPrincipal ? 'miniatura activa' : 'miniatura'}
+                  onError={(e) => {
+                    console.error(`❌ Error cargando miniatura: ${e.target.src}`);
+                    e.target.style.display = 'none';
+                  }}
+                />
+              ))}
+            </div>
           )}
         </div>
 

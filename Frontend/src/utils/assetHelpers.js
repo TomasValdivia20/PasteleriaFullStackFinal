@@ -58,3 +58,43 @@ export const getImagePath = (imageName) => {
  * Ruta de imagen por defecto cuando falla la carga
  */
 export const DEFAULT_IMAGE = `${BASE_PATH}assets/img/etiqueta-vacia.png`;
+
+/**
+ * Resuelve la URL de imagen de un producto, manejando Supabase URLs y paths locales
+ * @param {Object} producto - Objeto producto con imagenes[] o imagen
+ * @returns {string} - URL completa de la imagen
+ */
+export const resolveProductImageUrl = (producto) => {
+  if (!producto) {
+    console.warn('⚠️ [resolveProductImageUrl] Producto undefined');
+    return DEFAULT_IMAGE;
+  }
+
+  // PRIORIDAD 1: Imágenes de Supabase (tabla imagenes_producto)
+  if (producto.imagenes && Array.isArray(producto.imagenes) && producto.imagenes.length > 0) {
+    const imagenPrincipal = producto.imagenes.find(img => img.esPrincipal);
+    const urlSupabase = imagenPrincipal ? imagenPrincipal.urlSupabase : producto.imagenes[0].urlSupabase;
+    
+    if (urlSupabase) {
+      console.log(`✅ [resolveProductImageUrl] Usando Supabase: ${urlSupabase}`);
+      return urlSupabase;
+    }
+  }
+
+  // PRIORIDAD 2: Path local en producto.imagen
+  if (producto.imagen) {
+    // Si es URL completa (Supabase), usarla directamente
+    if (producto.imagen.startsWith('http://') || producto.imagen.startsWith('https://')) {
+      console.log(`✅ [resolveProductImageUrl] Usando URL completa: ${producto.imagen}`);
+      return producto.imagen;
+    }
+
+    // Si es path local, convertir a asset de Vite
+    console.log(`ℹ️ [resolveProductImageUrl] Convirtiendo path local: ${producto.imagen}`);
+    return getAssetPath(producto.imagen);
+  }
+
+  // FALLBACK: Imagen por defecto
+  console.warn(`⚠️ [resolveProductImageUrl] No se encontró imagen para producto ${producto.id || 'unknown'}, usando fallback`);
+  return DEFAULT_IMAGE;
+};
