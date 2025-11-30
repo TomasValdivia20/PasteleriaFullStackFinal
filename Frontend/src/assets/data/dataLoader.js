@@ -15,8 +15,9 @@ export const cargarCategorias = async () => {
       console.error('   Longitud:', response.data.length);
       console.error('   Primeros 100 caracteres:', response.data.substring(0, 100));
       
-      // Detectar si es HTML
-      if (response.data.trim().startsWith('<!doctype') || response.data.trim().startsWith('<html')) {
+      // Detectar si es HTML (solo si es string)
+      const trimmedData = response.data.trim();
+      if (trimmedData.startsWith('<!doctype') || trimmedData.startsWith('<html')) {
         console.error('   ⚠️  Es HTML del frontend, no JSON del backend API');
         console.error('   ⚠️  Verifica que VITE_API_URL termine en /api');
         console.error('   ⚠️  Ejemplo correcto: https://backend.railway.app/api');
