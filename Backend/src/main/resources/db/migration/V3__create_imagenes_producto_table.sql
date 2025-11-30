@@ -24,17 +24,18 @@ CREATE TABLE IF NOT EXISTS imagenes_producto (
     CONSTRAINT fk_imagen_producto FOREIGN KEY (producto_id) 
         REFERENCES productos(id) 
         ON DELETE CASCADE 
-        ON UPDATE CASCADE,
-    
-    -- Constraint: Solo una imagen principal por producto
-    CONSTRAINT chk_solo_una_principal_por_producto 
-        EXCLUDE USING gist (producto_id WITH =, es_principal WITH =) 
-        WHERE (es_principal = TRUE)
+        ON UPDATE CASCADE
 );
+
+-- Constraint: Solo una imagen principal por producto
+-- Usamos UNIQUE partial index en lugar de EXCLUDE USING gist
+-- Esto es compatible con PostgreSQL sin extensiones adicionales
+CREATE UNIQUE INDEX IF NOT EXISTS idx_one_principal_per_producto 
+    ON imagenes_producto(producto_id) 
+    WHERE (es_principal = TRUE);
 
 -- Indices para mejorar performance
 CREATE INDEX IF NOT EXISTS idx_imagenes_producto ON imagenes_producto(producto_id);
-CREATE INDEX IF NOT EXISTS idx_imagenes_principal ON imagenes_producto(producto_id, es_principal) WHERE es_principal = TRUE;
 CREATE INDEX IF NOT EXISTS idx_imagenes_orden ON imagenes_producto(producto_id, orden);
 
 -- Comentarios
