@@ -35,28 +35,73 @@ GROUP BY state
 ORDER BY cantidad DESC;
 
 -- ===================================================================
--- 🔴 PASO 3: TERMINAR TODAS LAS CONEXIONES ZOMBIES (CRÍTICO)
+-- 🔴 PASO 3: TERMINAR CONEXIONES ZOMBIES - MÉTODO SUPABASE
 -- ===================================================================
--- ⚠️ Este comando terminará TODAS las conexiones excepto la actual
+-- ⚠️ ERROR COMÚN: pg_terminate_backend() requiere permisos SUPERUSER
+-- ❌ "ERROR: 42501: permission denied to terminate process"
+--
+-- ✅ SOLUCIÓN: Usar SUPABASE DASHBOARD (GUI) en vez de SQL
 
-SELECT pg_terminate_backend(pid) 
+-- 🚫 ESTE MÉTODO NO FUNCIONA EN SUPABASE FREE TIER:
+-- SELECT pg_terminate_backend(pid) 
+-- FROM pg_stat_activity 
+-- WHERE datname = 'postgres' AND pid <> pg_backend_pid();
+
+-- ===================================================================
+-- ✅ MÉTODO CORRECTO: PAUSAR/REANUDAR BASE DE DATOS
+-- ===================================================================
+--
+-- OPCIÓN A: PAUSAR DATABASE (Cierra TODAS las conexiones)
+-- =========================================================
+-- 1. Ir a: Supabase Dashboard → Project Settings → Database
+-- 2. Scroll hasta "Pause Project"
+-- 3. Click en "Pause Project" → Confirmar
+-- 4. Esperar 30-60 segundos
+-- 5. Click en "Resume Project"
+-- 6. Resultado: TODAS las conexiones zombies terminadas
+--
+-- ⚠️ IMPACTO: 
+--    - Downtime: ~1-2 minutos
+--    - Todas las apps desconectadas (incluyendo Railway)
+--    - Railway reconectará automáticamente al reanudar
+--
+-- ===================================================================
+-- ✅ OPCIÓN B: RESTART POOLER (Sin downtime de DB)
+-- ===================================================================
+-- 1. Ir a: Supabase Dashboard → Project Settings → Database
+-- 2. Sección "Connection Pooling"
+-- 3. Click en "Restart Pooler" (si disponible)
+-- 4. Resultado: Cierra conexiones del pooler (menos agresivo)
+--
+-- ⚠️ NOTA: Esta opción puede no estar disponible en Free Tier
+--
+-- ===================================================================
+-- ✅ OPCIÓN C: CAMBIAR PASSWORD DATABASE (Fuerza desconexión)
+-- ===================================================================
+-- 1. Ir a: Supabase Dashboard → Project Settings → Database
+-- 2. Sección "Database Password"
+-- 3. Click en "Reset Database Password"
+-- 4. Copiar nuevo password
+-- 5. Actualizar DATABASE_URL en Railway con nuevo password
+-- 6. Resultado: Conexiones viejas no pueden autenticar (mueren)
+--
+-- ⚠️ IMPORTANTE: 
+--    - Actualizar password en Railway INMEDIATAMENTE
+--    - Formato DATABASE_URL:
+--      jdbc:postgresql://aws-0-us-west-1.pooler.supabase.com:6543/postgres?user=postgres.TU_PROJECT&password=NUEVO_PASSWORD
+--
+-- ===================================================================
+
+-- 🔍 Verificar conexiones antes de continuar
+SELECT 
+    count(*) as total_conexiones,
+    state
 FROM pg_stat_activity 
-WHERE datname = 'postgres' 
-  AND pid <> pg_backend_pid()
-  AND state IN (
-      'idle', 
-      'idle in transaction', 
-      'idle in transaction (aborted)', 
-      'disabled'
-  );
+WHERE datname = 'postgres'
+GROUP BY state;
 
--- Resultado esperado: 
--- pg_terminate_backend
--- ----------------------
---          t
---          t
---          t
--- (N rows) donde N = cantidad de conexiones zombies terminadas
+-- Si ves conexiones zombies después de PAUSAR/REANUDAR:
+-- Ejecutar OPCIÓN C (cambiar password)
 
 -- ===================================================================
 
