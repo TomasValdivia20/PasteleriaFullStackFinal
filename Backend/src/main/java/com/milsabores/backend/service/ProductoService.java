@@ -38,7 +38,25 @@ public class ProductoService {
      * Obtener producto por ID
      */
     public Optional<Producto> obtenerPorId(Long id) {
-        return productoRepository.findById(id);
+        Optional<Producto> producto = productoRepository.findById(id);
+        
+        // DEBUG: Log para verificar carga de variantes
+        if (producto.isPresent()) {
+            Producto p = producto.get();
+            System.out.println("🔍 [DEBUG] Producto ID=" + id + " cargado");
+            System.out.println("   Variantes cargadas: " + (p.getVariantes() != null ? p.getVariantes().size() : "NULL"));
+            System.out.println("   Imagenes cargadas: " + (p.getImagenes() != null ? p.getImagenes().size() : "NULL"));
+            
+            if (p.getVariantes() != null && !p.getVariantes().isEmpty()) {
+                p.getVariantes().forEach(v -> 
+                    System.out.println("   - Variante ID=" + v.getId() + ", nombre=" + v.getNombre() + ", precio=" + v.getPrecio())
+                );
+            }
+        } else {
+            System.out.println("❌ [DEBUG] Producto ID=" + id + " NO encontrado");
+        }
+        
+        return producto;
     }
 
     /**

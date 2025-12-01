@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Controlador REST para gestión de Productos
@@ -44,9 +45,21 @@ public class ProductoController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Producto> obtenerProductoPorId(@PathVariable Long id) {
-        return productoService.obtenerPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        Optional<Producto> productoOpt = productoService.obtenerPorId(id);
+        
+        if (productoOpt.isPresent()) {
+            Producto producto = productoOpt.get();
+            
+            // DEBUG: Verificar estado antes de serializar JSON
+            logger.info("📦 [GET] /api/productos/{} - Producto encontrado", id);
+            logger.info("   Variantes: {}", producto.getVariantes() != null ? producto.getVariantes().size() : "NULL");
+            logger.info("   Imagenes: {}", producto.getImagenes() != null ? producto.getImagenes().size() : "NULL");
+            
+            return ResponseEntity.ok(producto);
+        } else {
+            logger.warn("❌ [GET] /api/productos/{} - Producto NO encontrado", id);
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @GetMapping("/categoria/{id}")
