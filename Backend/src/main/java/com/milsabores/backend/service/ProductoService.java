@@ -3,6 +3,9 @@ package com.milsabores.backend.service;
 import com.milsabores.backend.model.Producto;
 import com.milsabores.backend.model.VarianteProducto;
 import com.milsabores.backend.repository.ProductoRepository;
+import org.hibernate.Hibernate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +20,8 @@ import java.util.Optional;
 @Service
 @Transactional
 public class ProductoService {
+
+    private static final Logger logger = LoggerFactory.getLogger(ProductoService.class);
 
     private final ProductoRepository productoRepository;
     private final CategoriaService categoriaService;
@@ -33,26 +38,40 @@ public class ProductoService {
     public List<Producto> obtenerTodos() {
         return productoRepository.findAll();
     }
-
+    
     /**
      * Obtener producto por ID
-     * WORKAROUND: Railway cache bug - fetch=EAGER ignorado en deployments
-     * Solución: @Transactional(readOnly=true) + spring.jpa.open-in-view=true
-     * Mantiene sesión Hibernate abierta durante JSON serialization
+     * 
+     * FIX DEFINITIVO: Hibernate.initialize() fuerza carga de collections
+     * Problema: A pesar de fetch=EAGER y @EntityGraph, Railway no cargaba variantes
+     * Causa: Session cerrada antes de JSON serialization
+     * Solución: Hibernate.initialize() garantiza carga dentro de transacción activa
      */
     @Transactional(readOnly = true)
     public Optional<Producto> obtenerPorId(Long id) {
-        Optional<Producto> producto = productoRepository.findById(id);
+        logger.debug("🔍 [SERVICE] Obteniendo producto con ID: {}", id);
         
-        if (producto.isPresent()) {
-            Producto p = producto.get();
-            // Force lazy initialization dentro de transacción activa
-            // Esto GARANTIZA que collections estén cargadas antes de serializar
-            p.getVariantes().size(); // Touch collection to load
-            p.getImagenes().size();  // Touch collection to load
+        Optional<Producto> productoOpt = productoRepository.findById(id);
+        
+        if (productoOpt.isPresent()) {
+            Producto producto = productoOpt.get();
+            
+            // 🔴 FIX CRÍTICO: Forzar inicialización de collections
+            // Hibernate.initialize() carga eagerly las collections lazy
+            // Esto soluciona el problema de variantes=0 en Railway
+            Hibernate.initialize(producto.getVariantes());
+            Hibernate.initialize(producto.getImagenes());
+            
+            logger.info("✅ [SERVICE] Producto cargado - ID: {}, Variantes: {}, Imagenes: {}", 
+                producto.getId(), 
+                producto.getVariantes().size(), 
+                producto.getImagenes().size()
+            );
+        } else {
+            logger.warn("⚠️ [SERVICE] Producto no encontrado con ID: {}", id);
         }
         
-        return producto;
+        return productoOpt;
     }
 
     /**
