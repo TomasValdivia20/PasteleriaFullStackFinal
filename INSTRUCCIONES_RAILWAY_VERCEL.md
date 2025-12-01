@@ -2,8 +2,13 @@
 
 **Sistema Forense Automático - Mil Sabores Pastelería**
 
-> **✅ FIX APLICADO:** Logback Railway-compatible (Diciembre 2025)  
-> Commits: `9c71310` (fix Logback) + `315a1da` (documentación)
+> **✅ FIX APLICADO:** Logback Railway-compatible + Logger frontend fix (Diciembre 2025)  
+> Commits: `9c71310` (fix Logback) + `315a1da` (docs) + `PENDIENTE` (logger.js fix)
+
+> **🔥 PROBLEMA CRÍTICO DETECTADO:**  
+> - ❌ Vercel logs no se envían a Railway: `POST http://localhost:8080/api/logs ERR_CONNECTION_REFUSED`  
+> - ❌ Variantes: 0 detectado en Railway logs  
+> - ✅ **SOLUCIONADO:** logger.js ahora usa `VITE_API_URL` (no `VITE_API_BASE_URL`)
 
 ---
 
@@ -53,15 +58,19 @@ ALLOWED_ORIGINS=https://tu-app.vercel.app,http://localhost:5173
 
 ```bash
 # HikariCP Connection Pool
-HIKARI_MAX_POOL_SIZE=20
-HIKARI_MIN_IDLE=5
-HIKARI_CONNECTION_TIMEOUT=30000
-HIKARI_IDLE_TIMEOUT=600000
-HIKARI_MAX_LIFETIME=1800000
-HIKARI_LEAK_DETECTION_THRESHOLD=60000
+SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE=20
+SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE=5
+SPRING_DATASOURCE_HIKARI_CONNECTION_TIMEOUT=30000
+SPRING_DATASOURCE_HIKARI_IDLE_TIMEOUT=600000
+SPRING_DATASOURCE_HIKARI_MAX_LIFETIME=1800000
+SPRING_DATASOURCE_HIKARI_LEAK_DETECTION_THRESHOLD=60000
 
 # JVM Memory (Railway 512MB)
 JAVA_TOOL_OPTIONS=-Xmx400m -Xms200m -XX:MaxMetaspaceSize=100m
+
+# ⚠️ FIX VARIANTES: 0 (Railway Bug LazyInitializationException)
+# Agregar SOLO si /actuator/health muestra lazyLoadingWorking: false
+SPRING_JPA_OPEN_IN_VIEW=true
 ```
 
 ### 🔧 Debugging (OPCIONAL - Solo desarrollo)
@@ -436,6 +445,86 @@ ERR_CONNECTION_REFUSED
    - Interval: 5 minutos
 
 Ver: [RAILWAY_TROUBLESHOOTING.md](./RAILWAY_TROUBLESHOOTING.md#5-frontend-no-conecta-con-backend)
+
+---
+
+### 🔴 Frontend Logs No Se Envían a Railway
+
+**Síntoma:**
+```log
+Vercel console:
+POST http://localhost:8080/api/logs net::ERR_CONNECTION_REFUSED
+[Logger] Failed to send logs to backend
+```
+
+**Causa:** `logger.js` usaba variable incorrecta `VITE_API_BASE_URL` (no existe)
+
+**Fix:**
+
+1. **Verificar fix aplicado en logger.js:**
+```javascript
+// ✅ CORRECTO
+backendUrl: import.meta.env.VITE_API_URL || 'http://localhost:8080/api'
+```
+
+2. **Verificar variable Vercel:**
+```bash
+VITE_API_URL=https://pasteleriafullstackfinal-production.up.railway.app/api
+```
+
+3. **Redeploy Vercel:**
+```bash
+vercel --prod
+```
+
+**Validación:**
+- Abrir Vercel app → F12 Console
+- Buscar `POST https://tu-railway-app.up.railway.app/api/logs` (NO localhost)
+- Railway logs deben mostrar `[FRONTEND]` categoría
+
+---
+
+### 🔴 Variantes: 0 / Imagenes: 0
+
+**Síntoma:**
+```log
+Railway:
+📦 [GET] /api/productos/1 - Variantes: 0, Imagenes: 0
+
+Frontend:
+✅ Producto cargado: {variantes: [], imagenes: []}
+```
+
+**Causa:** Railway bug LazyInitializationException (cache no respeta `@Fetch(EAGER)`)
+
+**Fix:**
+
+1. **Health check verificación:**
+```bash
+curl https://tu-railway-app.up.railway.app/actuator/health | jq .
+```
+
+Expected: `"lazyLoadingWorking": false`
+
+2. **Agregar variable Railway:**
+```bash
+SPRING_JPA_OPEN_IN_VIEW=true
+```
+
+3. **Redeploy Railway:** Push a GitHub o Railway CLI
+
+**Validación:**
+```bash
+# Test API
+curl https://tu-railway-app.up.railway.app/api/productos/1 | jq '.variantes | length'
+# Expected: > 0 (no vacío)
+
+# Health check
+curl https://tu-railway-app.up.railway.app/actuator/health | jq '.components.hibernate.details.lazyLoadingWorking'
+# Expected: true
+```
+
+Ver detalles: [RAILWAY_TROUBLESHOOTING.md - Variantes 0](./RAILWAY_TROUBLESHOOTING.md#2-variantes-0---lazyinitializationexception)
 
 ---
 

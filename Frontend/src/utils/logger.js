@@ -39,7 +39,7 @@ const config = {
   sendToBackend: import.meta.env.MODE === 'production',
   
   // URL backend para envío de logs
-  backendUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api',
+  backendUrl: import.meta.env.VITE_API_URL || 'http://localhost:8080/api',
   
   // Buffer de logs antes de enviar (evitar flood)
   batchSize: 10,
