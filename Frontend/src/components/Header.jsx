@@ -50,9 +50,9 @@ export default function Header() {
             <>
               <li><Link to="/perfil">Mi Cuenta</Link></li>
               
-              {/* 🔒 Mostrar enlace a Backoffice SOLO si es ADMIN */}
-              {usuario.rol === 'ADMIN' && (
-                <li><Link to="/backoffice">Empleados</Link></li>
+              {/* 🔒 Mostrar enlace a Backoffice si es ADMIN o EMPLEADO */}
+              {(usuario.rol === 'ADMIN' || usuario.rol === 'EMPLEADO') && (
+                <li><Link to="/backoffice">Backoffice</Link></li>
               )}
               
               <li>

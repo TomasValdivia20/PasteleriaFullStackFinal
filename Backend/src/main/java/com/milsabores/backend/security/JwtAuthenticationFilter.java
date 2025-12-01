@@ -37,6 +37,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         final String authorizationHeader = request.getHeader("Authorization");
         final String requestPath = request.getRequestURI();
+        final String method = request.getMethod();
 
         String username = null;
         String jwt = null;
@@ -48,10 +49,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 username = jwtUtil.extractUsername(jwt);
                 logger.debug("🔐 [JWT Filter] Token encontrado para usuario: {}", username);
             } catch (Exception e) {
-                logger.warn("⚠️ [JWT Filter] Error al extraer username del token: {}", e.getMessage());
+                logger.warn("⚠️ [JWT Filter] Error al extraer username del token en {}: {}", requestPath, e.getMessage());
+                // Si hay error extrayendo username, continuar sin autenticación
+                // Esto permite que endpoints públicos funcionen incluso con token inválido
             }
         } else {
-            logger.debug("📭 [JWT Filter] No se encontró token Bearer en: {}", requestPath);
+            logger.debug("📭 [JWT Filter] No se encontró token Bearer en: {} {}", method, requestPath);
         }
 
         // Validar token y establecer autenticación
@@ -70,15 +73,26 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
                     
-                    logger.info("✅ [JWT Filter] Autenticación establecida para: {} en: {}", username, requestPath);
+                    logger.info("✅ [JWT Filter] Autenticación establecida para: {} (rol: {}) en: {} {}", 
+                        username, 
+                        userDetails.getAuthorities(),
+                        method,
+                        requestPath);
                 } else {
-                    logger.warn("❌ [JWT Filter] Token inválido para: {}", username);
+                    logger.warn("❌ [JWT Filter] Token inválido para: {} en: {} {}", username, method, requestPath);
+                    // No establecer autenticación si token es inválido
+                    // Esto permite que endpoints públicos funcionen incluso con token inválido
                 }
             } catch (Exception e) {
-                logger.error("❌ [JWT Filter] Error en autenticación: {}", e.getMessage());
+                logger.error("❌ [JWT Filter] Error en autenticación para {} en {} {}: {}", 
+                    username, method, requestPath, e.getMessage());
+                // No establecer autenticación si hay error
+                // Esto permite que endpoints públicos funcionen incluso con error en token
             }
         }
 
+        // IMPORTANTE: Siempre continuar con la cadena de filtros
+        // Spring Security decidirá si rechazar basándose en SecurityConfig
         filterChain.doFilter(request, response);
     }
 }
