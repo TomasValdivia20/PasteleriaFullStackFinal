@@ -33,6 +33,9 @@ public class Producto {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Categoria categoria;
 
+    // CRITICAL FIX: fetch=EAGER prevents LazyInitializationException during JSON serialization
+    // Without EAGER, Hibernate closes session before Jackson serializes, causing empty variantes[] in response
+    // Build timestamp: 2025-12-01 Railway deployment verification
     @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @JsonManagedReference("producto-variantes")
     private Set<VarianteProducto> variantes = new HashSet<>();
