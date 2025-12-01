@@ -2,6 +2,8 @@ package com.milsabores.backend.controller;
 
 import com.milsabores.backend.model.Producto;
 import com.milsabores.backend.service.ProductoService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +21,7 @@ import java.util.List;
 @RequestMapping("/api/productos")
 public class ProductoController {
 
+    private static final Logger logger = LoggerFactory.getLogger(ProductoController.class);
     private final ProductoService productoService;
 
     @Autowired
@@ -28,7 +31,14 @@ public class ProductoController {
 
     @GetMapping
     public ResponseEntity<List<Producto>> listarProductos() {
+        long startTime = System.currentTimeMillis();
+        logger.info("📦 [GET] /api/productos - Listar todos los productos");
+        
         List<Producto> productos = productoService.obtenerTodos();
+        
+        long duration = System.currentTimeMillis() - startTime;
+        logger.info("✅ [GET] Productos listados - Total: {} en {}ms", productos.size(), duration);
+        
         return ResponseEntity.ok(productos);
     }
 
