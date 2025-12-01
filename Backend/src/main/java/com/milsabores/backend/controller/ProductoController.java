@@ -51,6 +51,20 @@ public class ProductoController {
             Producto producto = productoOpt.get();
             logger.info("📦 [GET] /api/productos/{} - Variantes: {}, Imagenes: {}", 
                 id, producto.getVariantes().size(), producto.getImagenes().size());
+            
+            // 🔍 DEBUG: Log detallado de variantes
+            if (producto.getVariantes() != null && !producto.getVariantes().isEmpty()) {
+                logger.info("🔍 [DEBUG] Variantes cargadas:");
+                producto.getVariantes().forEach(v -> 
+                    logger.info("  - ID:{} Nombre:{} Precio:{}", v.getId(), v.getNombre(), v.getPrecio())
+                );
+            } else {
+                logger.warn("⚠️ [DEBUG] Collection variantes es NULL o VACÍA");
+                logger.warn("⚠️ [DEBUG] variantes == null? {}", producto.getVariantes() == null);
+                logger.warn("⚠️ [DEBUG] variantes.size(): {}", 
+                    producto.getVariantes() != null ? producto.getVariantes().size() : "NULL");
+            }
+            
             return ResponseEntity.ok(producto);
         } else {
             logger.warn("❌ [GET] /api/productos/{} - Producto NO encontrado", id);
