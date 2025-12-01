@@ -7,10 +7,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Controlador temporal para poblar variantes en productos existentes
@@ -41,16 +44,22 @@ public class AdminDataController {
      * 
      * @return ResponseEntity con resultado de operación
      */
-    @GetMapping("/populate-variantes")
-    public ResponseEntity<String> populateVariantes() {
+    @PostMapping("/populate-variantes")
+    @Transactional
+    public ResponseEntity<Map<String, Object>> populateVariantes() {
         logger.info("🔧 [ADMIN] Iniciando población de variantes...");
         
         List<Producto> productos = productoRepository.findAll();
         int productosActualizados = 0;
         
         for (Producto producto : productos) {
+            // Inicializar variantes si es null
+            if (producto.getVariantes() == null) {
+                producto.setVariantes(new HashSet<>());
+            }
+            
             // Solo agregar variantes si NO tiene
-            if (producto.getVariantes() == null || producto.getVariantes().isEmpty()) {
+            if (producto.getVariantes().isEmpty()) {
                 logger.info("📦 [ADMIN] Agregando variantes a producto ID={}, nombre={}", 
                     producto.getId(), producto.getNombre());
                 
@@ -61,10 +70,13 @@ public class AdminDataController {
                     crearVariante("12 personas", precioBase, "Peso: 2.2 kg, Energía: 6480 kcal"),
                     crearVariante("16 personas", (int)(precioBase * 1.33), "Peso: 2.9 kg, Energía: 8640 kcal"),
                     crearVariante("20 personas", (int)(precioBase * 1.67), "Peso: 3.6 kg, Energía: 10800 kcal"),
-                    crearVariante("25 personas", (int)(precioBase * 2.08), "Peso: 4.5 kg, Energía: 13500 kcal")
+                    crearVariante("25 personas", (int)(precioBase * 2.08), "Peso: 4.5 kg, Energía: 13500 kcal"),
+                    crearVariante("30 personas", (int)(precioBase * 2.50), "Peso: 5.4 kg, Energía: 16200 kcal"),
+                    crearVariante("40 personas", (int)(precioBase * 2.85), "Peso: 7.2 kg, Energía: 21600 kcal"),
+                    crearVariante("50 personas", (int)(precioBase * 3.19), "Peso: 9.0 kg, Energía: 27000 kcal")
                 );
                 
-                // Asignar producto a cada variante
+                // Asignar producto a cada variante (bidireccional)
                 for (VarianteProducto v : variantes) {
                     v.setProducto(producto);
                     producto.getVariantes().add(v);
@@ -78,13 +90,18 @@ public class AdminDataController {
             }
         }
         
-        String resultado = String.format(
+        String mensaje = String.format(
             "✅ [ADMIN] Proceso completado: %d productos actualizados, %d productos con variantes previas",
             productosActualizados, productos.size() - productosActualizados
         );
-        logger.info(resultado);
+        logger.info(mensaje);
         
-        return ResponseEntity.ok(resultado);
+        return ResponseEntity.ok(Map.of(
+            "message", mensaje,
+            "productosActualizados", productosActualizados,
+            "totalProductos", productos.size(),
+            "productosConVariantesPrevias", productos.size() - productosActualizados
+        ));
     }
     
     /**
