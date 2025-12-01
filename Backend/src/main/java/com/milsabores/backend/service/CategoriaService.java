@@ -2,6 +2,8 @@ package com.milsabores.backend.service;
 
 import com.milsabores.backend.model.Categoria;
 import com.milsabores.backend.repository.CategoriaRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +19,7 @@ import java.util.Optional;
 @Transactional
 public class CategoriaService {
 
+    private static final Logger logger = LoggerFactory.getLogger(CategoriaService.class);
     private final CategoriaRepository categoriaRepository;
 
     @Autowired
@@ -27,8 +30,17 @@ public class CategoriaService {
     /**
      * Obtener todas las categorías
      */
+    @Transactional(readOnly = true)
     public List<Categoria> obtenerTodas() {
-        return categoriaRepository.findAll();
+        logger.debug("🔍 [SERVICE] Obteniendo todas las categorías");
+        try {
+            List<Categoria> categorias = categoriaRepository.findAll();
+            logger.info("✅ [SERVICE] {} categorías encontradas", categorias.size());
+            return categorias;
+        } catch (Exception e) {
+            logger.error("❌ [SERVICE] Error al obtener categorías: {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     /**

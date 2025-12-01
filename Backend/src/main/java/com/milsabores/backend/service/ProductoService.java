@@ -35,37 +35,36 @@ public class ProductoService {
     /**
      * Obtener todos los productos
      */
+    @Transactional(readOnly = true)
     public List<Producto> obtenerTodos() {
-        return productoRepository.findAll();
+        logger.debug("🔍 [SERVICE] Obteniendo todos los productos");
+        List<Producto> productos = productoRepository.findAllWithCollections();
+        logger.info("✅ [SERVICE] {} productos encontrados", productos.size());
+        return productos;
     }
     
     /**
      * Obtener producto por ID
      * 
-     * FIX DEFINITIVO: Hibernate.initialize() fuerza carga de collections
-     * Problema: A pesar de fetch=EAGER y @EntityGraph, Railway no cargaba variantes
-     * Causa: Session cerrada antes de JSON serialization
-     * Solución: Hibernate.initialize() garantiza carga dentro de transacción activa
+     * FIX ALTERNATIVO: Usar JPQL JOIN FETCH en vez de Hibernate.initialize()
+     * Problema: @EntityGraph + Hibernate.initialize() no funcionan en PgBouncer
+     * Solución: JOIN FETCH explícito carga collections en una sola query
      */
     @Transactional(readOnly = true)
     public Optional<Producto> obtenerPorId(Long id) {
         logger.debug("🔍 [SERVICE] Obteniendo producto con ID: {}", id);
         
-        Optional<Producto> productoOpt = productoRepository.findById(id);
+        // Cambiar de findById() a findByIdWithCollections()
+        // JOIN FETCH carga variantes + imagenes + categoria en UNA sola query
+        Optional<Producto> productoOpt = productoRepository.findByIdWithCollections(id);
         
         if (productoOpt.isPresent()) {
             Producto producto = productoOpt.get();
             
-            // 🔴 FIX CRÍTICO: Forzar inicialización de collections
-            // Hibernate.initialize() carga eagerly las collections lazy
-            // Esto soluciona el problema de variantes=0 en Railway
-            Hibernate.initialize(producto.getVariantes());
-            Hibernate.initialize(producto.getImagenes());
-            
             logger.info("✅ [SERVICE] Producto cargado - ID: {}, Variantes: {}, Imagenes: {}", 
                 producto.getId(), 
-                producto.getVariantes().size(), 
-                producto.getImagenes().size()
+                producto.getVariantes() != null ? producto.getVariantes().size() : 0, 
+                producto.getImagenes() != null ? producto.getImagenes().size() : 0
             );
         } else {
             logger.warn("⚠️ [SERVICE] Producto no encontrado con ID: {}", id);
@@ -77,11 +76,15 @@ public class ProductoService {
     /**
      * Obtener productos por categoría
      */
+    @Transactional(readOnly = true)
     public List<Producto> obtenerPorCategoria(Long categoriaId) {
+        logger.debug("🔍 [SERVICE] Obteniendo productos de categoría: {}", categoriaId);
         if (!categoriaService.existe(categoriaId)) {
             throw new RuntimeException("Categoría no encontrada con ID: " + categoriaId);
         }
-        return productoRepository.findByCategoriaId(categoriaId);
+        List<Producto> productos = productoRepository.findByCategoriaIdWithCollections(categoriaId);
+        logger.info("✅ [SERVICE] {} productos encontrados para categoría {}", productos.size(), categoriaId);
+        return productos;
     }
 
     /**
