@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 @Component
@@ -240,7 +241,7 @@ public class DataInitializer implements CommandLineRunner {
         producto.setImagen(img);
         producto.setPrecioBase(precioBase);
         producto.setCategoria(cat);
-        producto.setVariantes(new ArrayList<>());
+        producto.setVariantes(new HashSet<>());
 
         // Asignar bidireccionalmente
         for (VarianteProducto v : variantes) {

@@ -6,7 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import org.hibernate.annotations.OnDelete; // Importar
 import org.hibernate.annotations.OnDeleteAction; // Importar
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "productos")
@@ -33,8 +34,8 @@ public class Producto {
     private Categoria categoria;
 
     @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<VarianteProducto> variantes;
+    private Set<VarianteProducto> variantes = new HashSet<>();
     
     @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ImagenProducto> imagenes;
+    private Set<ImagenProducto> imagenes = new HashSet<>();
 }
