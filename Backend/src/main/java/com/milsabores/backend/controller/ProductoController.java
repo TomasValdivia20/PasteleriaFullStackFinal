@@ -49,12 +49,8 @@ public class ProductoController {
         
         if (productoOpt.isPresent()) {
             Producto producto = productoOpt.get();
-            
-            // DEBUG: Verificar estado antes de serializar JSON
-            logger.info("📦 [GET] /api/productos/{} - Producto encontrado", id);
-            logger.info("   Variantes: {}", producto.getVariantes() != null ? producto.getVariantes().size() : "NULL");
-            logger.info("   Imagenes: {}", producto.getImagenes() != null ? producto.getImagenes().size() : "NULL");
-            
+            logger.info("📦 [GET] /api/productos/{} - Variantes: {}, Imagenes: {}", 
+                id, producto.getVariantes().size(), producto.getImagenes().size());
             return ResponseEntity.ok(producto);
         } else {
             logger.warn("❌ [GET] /api/productos/{} - Producto NO encontrado", id);

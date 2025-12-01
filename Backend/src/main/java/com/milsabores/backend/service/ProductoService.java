@@ -36,24 +36,20 @@ public class ProductoService {
 
     /**
      * Obtener producto por ID
+     * WORKAROUND: Railway cache bug - fetch=EAGER ignorado en deployments
+     * Solución: @Transactional(readOnly=true) + spring.jpa.open-in-view=true
+     * Mantiene sesión Hibernate abierta durante JSON serialization
      */
+    @Transactional(readOnly = true)
     public Optional<Producto> obtenerPorId(Long id) {
         Optional<Producto> producto = productoRepository.findById(id);
         
-        // DEBUG: Log para verificar carga de variantes
         if (producto.isPresent()) {
             Producto p = producto.get();
-            System.out.println("🔍 [DEBUG] Producto ID=" + id + " cargado");
-            System.out.println("   Variantes cargadas: " + (p.getVariantes() != null ? p.getVariantes().size() : "NULL"));
-            System.out.println("   Imagenes cargadas: " + (p.getImagenes() != null ? p.getImagenes().size() : "NULL"));
-            
-            if (p.getVariantes() != null && !p.getVariantes().isEmpty()) {
-                p.getVariantes().forEach(v -> 
-                    System.out.println("   - Variante ID=" + v.getId() + ", nombre=" + v.getNombre() + ", precio=" + v.getPrecio())
-                );
-            }
-        } else {
-            System.out.println("❌ [DEBUG] Producto ID=" + id + " NO encontrado");
+            // Force lazy initialization dentro de transacción activa
+            // Esto GARANTIZA que collections estén cargadas antes de serializar
+            p.getVariantes().size(); // Touch collection to load
+            p.getImagenes().size();  // Touch collection to load
         }
         
         return producto;
