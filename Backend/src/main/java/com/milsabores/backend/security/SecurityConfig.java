@@ -66,8 +66,8 @@ public class SecurityConfig {
                     "/api/auth/login",                        // Login público
                     "/api/auth/registro",                     // Registro público
                     "/api/imagenes/**",                       // Imágenes públicas
-                    "/api/admin/populate-variantes",          // TEMPORAL: Fix variantes
-                    "/api/admin/verify-variantes"             // TEMPORAL: Verificar variantes
+                    "/actuator/health",                       // Health check
+                    "/api/admin/**"                           // TEMPORAL: Admin endpoints
                 ).permitAll()
                 
                 // Catálogo público - solo lectura
