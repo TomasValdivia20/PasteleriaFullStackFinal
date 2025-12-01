@@ -1,5 +1,9 @@
 # 🚂 Railway - Variables de Entorno y Configuración Final
 
+> **⚠️ ACTUALIZACIÓN IMPORTANTE:** Sistema de logging corregido (Diciembre 2025)  
+> Si experimentabas crashes con `Logback configuration error`, este fix lo resuelve.  
+> Ver: [RAILWAY_TROUBLESHOOTING.md](./RAILWAY_TROUBLESHOOTING.md)
+
 ## 📋 Variables de Entorno Requeridas
 
 ### Backend (Java Spring Boot)
@@ -39,15 +43,27 @@ JWT_EXPIRATION=86400000
 ALLOWED_ORIGINS=https://tu-app.vercel.app,http://localhost:5173
 
 # ===================================================================
-# HIKARI CONNECTION POOL (Opcional - usa defaults optimizados)
+# HIKARI CONNECTION POOL (Optimizado para Railway)
 # ===================================================================
-HIKARI_MAX_POOL_SIZE=2
-HIKARI_MIN_IDLE=0
+HIKARI_MAX_POOL_SIZE=20
+HIKARI_MIN_IDLE=5
+HIKARI_CONNECTION_TIMEOUT=30000
+HIKARI_IDLE_TIMEOUT=600000
+HIKARI_MAX_LIFETIME=1800000
+HIKARI_LEAK_DETECTION_THRESHOLD=60000
 
 # ===================================================================
-# LOGGING (Opcional - usa logback-spring.xml defaults)
+# JVM MEMORY (Optimizado para Railway 512MB)
 # ===================================================================
-# Solo habilitar para debugging temporal
+JAVA_TOOL_OPTIONS=-Xmx400m -Xms200m -XX:MaxMetaspaceSize=100m
+
+# ===================================================================
+# LOGGING (Configurado automáticamente en logback-spring.xml)
+# ===================================================================
+# ✅ Logging ahora usa patrones estándar Logback (sin %clr ni %wEx)
+# ✅ MDC habilitado: correlationId, userId, requestUri
+# ✅ Logs estructurados para Railway console
+# Solo descomentar para debugging intensivo:
 # LOGGING_LEVEL_COM_MILSABORES_BACKEND=DEBUG
 # SPRING_JPA_SHOW_SQL=true
 ```
@@ -386,10 +402,39 @@ Muestra timeline completo con mismo correlation ID.
 
 ## 📚 Documentación Adicional
 
-- **DEBUGGING_RAILWAY.md**: Guía completa de interpretación de logs
-- **INSTRUCCIONES_RAILWAY.md**: Deployment guide detallado
+### Troubleshooting
+
+¿Problemas con el deployment? Consulta:
+
+- **[RAILWAY_TROUBLESHOOTING.md](./RAILWAY_TROUBLESHOOTING.md)** - 5 problemas comunes con soluciones
+  1. ❌ Crash: Logback Configuration Error → **FIX: Removido %clr y %wEx**
+  2. ❌ Variantes: 0 - LazyInitializationException → Workarounds Railway bug
+  3. ❌ Database Connection Pool Exhausted → HikariCP tuning
+  4. ❌ Memory Leak - Out of Memory → MDC cleanup
+  5. ❌ Frontend No Conecta con Backend → CORS + Keep-Alive
+
+### Guías Completas
+
+- **DEBUGGING_RAILWAY.md**: Sistema de logging, Railway CLI, interpretación de logs
+- **INSTRUCCIONES_RAILWAY.md**: Deployment paso a paso, variables de entorno
+- **RESUMEN_LOGGING_SISTEMA.md**: Arquitectura del sistema forense automático
+
+### Recursos Externos
+
 - **Railway Docs**: https://docs.railway.app
-- **Health Check Spec**: https://docs.spring.io/spring-boot/docs/current/reference/html/actuator.html
+- **Spring Boot Actuator**: https://docs.spring.io/spring-boot/docs/current/reference/html/actuator.html
+- **Logback Manual**: https://logback.qos.ch/manual/
+
+---
+
+## 🆘 Soporte
+
+Si ninguna solución funciona:
+
+1. **Descarga logs completos**: Railway Dashboard → Settings → Logs → Download
+2. **Verifica health check**: `curl https://tu-app.up.railway.app/actuator/health`
+3. **Consulta RAILWAY_TROUBLESHOOTING.md** para diagnóstico específico
+4. **Railway Discord**: https://discord.gg/railway (#help channel)
 
 ---
 
