@@ -21,17 +21,17 @@
     <property name="LOG_PATH" value="${LOG_PATH:-logs}" />
     <property name="LOG_FILE" value="${LOG_FILE:-backend}" />
     
-    <!-- Pattern para DESARROLLO (con colores) -->
+    <!-- Pattern para DESARROLLO (sin colores para compatibilidad) -->
     <property name="CONSOLE_LOG_PATTERN_DEV" 
-              value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%5p) %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %clr([%X{correlationId}]){magenta} %m%n%wEx"/>
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} %5p [%15.15t] %-40.40logger{39} : [correlationId=%X{correlationId}] %m%n%ex{full}"/>
     
-    <!-- Pattern para PRODUCCION (sin colores, Railway-friendly) -->
+    <!-- Pattern para PRODUCCION (Railway-compatible) -->
     <property name="CONSOLE_LOG_PATTERN_PROD" 
-              value="%d{yyyy-MM-dd HH:mm:ss.SSS} %5p [%t] %-40.40logger{39} : [correlationId=%X{correlationId}] [userId=%X{userId}] [uri=%X{requestUri}] %m%n%wEx"/>
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} %5p [%t] %-40.40logger{39} : [correlationId=%X{correlationId}] [userId=%X{userId}] [uri=%X{requestUri}] %m%n%ex{short}"/>
     
     <!-- Pattern para archivo (mismo que producción) -->
     <property name="FILE_LOG_PATTERN" 
-              value="%d{yyyy-MM-dd HH:mm:ss.SSS} %5p [%t] %-40.40logger{39} : [correlationId=%X{correlationId}] [userId=%X{userId}] [uri=%X{requestUri}] %m%n%wEx"/>
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} %5p [%t] %-40.40logger{39} : [correlationId=%X{correlationId}] [userId=%X{userId}] [uri=%X{requestUri}] %m%n%ex{short}"/>
 
     <!-- ===================================================================
          APPENDER: CONSOLE (Desarrollo)
