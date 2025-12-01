@@ -45,12 +45,13 @@ public class AdminDataController {
      * @return ResponseEntity con resultado de operación
      */
     @PostMapping("/populate-variantes")
-    @Transactional
     public ResponseEntity<Map<String, Object>> populateVariantes() {
-        logger.info("🔧 [ADMIN] Iniciando población de variantes...");
+        try {
+            logger.info("🔧 [ADMIN] Iniciando población de variantes...");
         
-        List<Producto> productos = productoRepository.findAll();
-        int productosActualizados = 0;
+            List<Producto> productos = productoRepository.findAll();
+            logger.info("📊 [ADMIN] Total productos encontrados: {}", productos.size());
+            int productosActualizados = 0;
         
         for (Producto producto : productos) {
             // Inicializar variantes si es null
@@ -102,6 +103,14 @@ public class AdminDataController {
             "totalProductos", productos.size(),
             "productosConVariantesPrevias", productos.size() - productosActualizados
         ));
+        } catch (Exception e) {
+            logger.error("❌ [ADMIN] Error poblando variantes: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body(Map.of(
+                "error", "Error interno",
+                "message", e.getMessage(),
+                "type", e.getClass().getSimpleName()
+            ));
+        }
     }
     
     /**
