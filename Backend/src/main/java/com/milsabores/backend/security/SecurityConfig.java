@@ -63,7 +63,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // Endpoints públicos (sin autenticación)
                 .requestMatchers(
-                    "/api/auth/**",                           // Login y registro
+                    "/api/auth/login",                        // Login público
+                    "/api/auth/registro",                     // Registro público
                     "/api/imagenes/**"                        // Imágenes públicas
                 ).permitAll()
                 

@@ -38,13 +38,14 @@ export default function Login() {
       if (data.success) {
         console.log("✅ [LOGIN] Autenticación exitosa:", data);
         
-        // Guardar usuario en contexto
+        // 🔐 CRÍTICO: Guardar usuario con TOKEN JWT en contexto
         login({
           id: data.id,
           nombre: data.nombre,
           apellido: data.apellido,
           correo: data.correo,
-          rol: data.rol
+          rol: data.rol,
+          token: data.token  // ✅ TOKEN JWT del backend
         });
 
         setMensaje(`✅ ${data.mensaje} 🎉`);

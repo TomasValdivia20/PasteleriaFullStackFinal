@@ -69,6 +69,12 @@ export default function Registro() {
       if (response.data.success) {
         setMensaje("✅ " + response.data.mensaje);
         
+        // TODO FUTURO: Auto-login después de registro (si backend retorna token)
+        // if (response.data.token) {
+        //   login({ ...response.data, token: response.data.token });
+        //   navigate('/');
+        // }
+        
         // Resetear formulario
         setFormData({
           rut: "",

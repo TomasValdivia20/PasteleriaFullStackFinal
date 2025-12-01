@@ -2,24 +2,62 @@
 
 ## 📌 ESTADO ACTUAL DEL DESPLIEGUE
 
-### ✅ Acciones Completadas (Última: Fix Pool de Conexiones)
+### 🔴 SITUACIÓN CRÍTICA: CONEXIONES ZOMBIES EN SUPABASE
 
-1. **CRITICAL FIX: Pool de Conexiones Optimizado** (commit PRÓXIMO)
-   - **ERROR**: `FATAL: Max client connections reached` en Supabase
-   - **CAUSA**: Supabase Free Tier = 20 conexiones máx, HikariCP con 5 conexiones/instancia
-   - **SOLUCIÓN**: Reducir a 3 conexiones máx por instancia Railway
-   - Configuración actualizada en `application.properties`
+**PROBLEMA DETECTADO EN LOGS**: Railway NO puede conectarse a Supabase
+- **ERROR**: `FATAL: Max client connections reached` (múltiples reinicios)
+- **VERIFICACIÓN USUARIO**: Conexiones en estado `idle in transaction (aborted)` y `null`
+- **CAUSA**: Conexiones zombies NO se liberan automáticamente en Supabase
 
-2. **V6 Problemático Eliminado** (commit b79ac70)
-   - Archivo `V6__reset_admin_user_bcrypt.sql` removido del código
-   - Flyway ahora saltará de V5 → V7 directamente
-   
-3. **V7 Migración Lista**
-   - Archivo: `V7__cleanup_for_bcrypt_users.sql`
-   - Elimina órdenes/usuarios en orden FK-safe
-   - Crea usuarios BCrypt: admin@milsabores.cl, empleado@milsabores.cl
+### ✅ SOLUCIÓN IMPLEMENTADA (Requiere Acción Manual)
 
-### ⚠️ PROBLEMA ACTUAL: POOL DE CONEXIONES SATURADO
+1. **CRITICAL FIX: Pool de Conexiones Optimizado** ✅ (commit b8b5233)
+   - Reducción: 5 → 3 conexiones máximas por instancia
+   - `max-lifetime`: 30min → 20min (evita zombies)
+   - `leak-detection-threshold`: 15s (detecta conexiones no cerradas)
+   - ⚠️ **Railway puede estar usando JAR cacheado antiguo**
+
+2. **V7 Migración Completada en Supabase** ✅
+   - Usuario confirmó: admin@milsabores.cl y empleado@milsabores.cl existen
+   - BCrypt implementado correctamente
+
+3. **V6 Problemático Eliminado** ✅ (commit b79ac70)
+   - Archivo `V6__reset_admin_user_bcrypt.sql` removido
+
+### 🚨 ACCIONES REQUERIDAS URGENTES
+
+**PASO 1: LIMPIAR CONEXIONES ZOMBIES EN SUPABASE** (CRÍTICO)
+```bash
+# Abrir archivo creado: Instrucciones/EMERGENCIA_SUPABASE_LIMPIAR_CONEXIONES.sql
+# Ejecutar en Supabase Dashboard > SQL Editor
+# 
+# Esto terminará conexiones "idle in transaction (aborted)"
+# Liberará el pool de 20 conexiones para que Railway pueda conectarse
+```
+
+**PASO 2: FORZAR REDEPLOY EN RAILWAY**
+```bash
+# Railway Dashboard > Tu Proyecto > Deployments
+# Click botón "Redeploy" (flechas circulares)
+# 
+# Esto forzará rebuild con commit b8b5233 (pool optimizado)
+# NO usar JAR cacheado
+```
+
+**PASO 3: VERIFICAR LOGS**
+```bash
+# Buscar en Railway logs:
+# ✅ "HikariPool-1 - Start completed"
+# ✅ "Started BackendApplication in X.XXX seconds"
+# ✅ "Flyway Community Edition 9.22.3 by Redgate"
+# ✅ "Validated 7 migrations (execution time 00:00.XXXs)"
+# 
+# ❌ Si ves "Max client connections reached" → Volver a PASO 1
+```
+
+---
+
+### ⚠️ PROBLEMA DIAGNOSTICADO: CONEXIONES ZOMBIES + JAR ANTIGUO
 
 **ERROR EN RAILWAY LOGS**:
 ```
@@ -139,86 +177,213 @@ HIKARI_MIN_IDLE=1
 
 **VERIFICAR CONEXIONES ACTIVAS EN SUPABASE**:
 ```sql
--- Ejecutar en Supabase SQL Editor
-SELECT 
-    pid,
-    usename,
-    application_name,
-    client_addr,
-    state,
-    query_start,
-    state_change
-FROM pg_stat_activity
-WHERE datname = 'postgres'
-ORDER BY state_change DESC;
-
--- Contar conexiones por estado
-SELECT state, COUNT(*) 
+-- PASO 1: Ver estado actual (ejecutar en Supabase SQL Editor)
+SELECT state, COUNT(*) as total_conexiones
 FROM pg_stat_activity 
-WHERE datname = 'postgres' 
+WHERE datname = 'postgres'
 GROUP BY state;
 
--- TERMINAR CONEXIONES ZOMBIES (solo si es necesario)
-SELECT pg_terminate_backend(pid)
+-- PASO 2: Ver detalles de conexiones problemáticas
+SELECT pid, state, state_change, NOW() - state_change AS tiempo_en_estado
 FROM pg_stat_activity
-WHERE datname = 'postgres'
-  AND pid <> pg_backend_pid()
-  AND state = 'idle'
-  AND state_change < NOW() - INTERVAL '10 minutes';
+WHERE datname = 'postgres' 
+  AND state IN ('idle in transaction', 'idle in transaction (aborted)')
+ORDER BY state_change;
+
+-- PASO 3: TERMINAR CONEXIONES ZOMBIES (CRITICAL)
+-- Ver archivo: Instrucciones/EMERGENCIA_SUPABASE_LIMPIAR_CONEXIONES.sql
 ```
 
-**LOGS RAILWAY ESPERADOS DESPUÉS DEL FIX**:
-```log
+**LOGS ESPERADOS DESPUÉS DE FIX**:
+```
 ✅ HikariPool-1 - Starting...
 ✅ HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@...
+✅ HikariPool-1 - Start completed
 ✅ Flyway Community Edition 9.22.3 by Redgate
-✅ Migrating schema "public" to version "7 - cleanup for bcrypt users"
-✅ Successfully applied 1 migration to schema "public"
-✅ Started BackendApplication in 12.345 seconds
+✅ Validated 7 migrations (execution time 00:00.XXXs)
+✅ Started BackendApplication in 12.XXX seconds
 ```
+
+**SI RAILWAY SIGUE FALLANDO**:
+1. Ejecutar `EMERGENCIA_SUPABASE_LIMPIAR_CONEXIONES.sql` en Supabase
+2. Reducir aún más: Agregar variable `HIKARI_MAX_POOL_SIZE=2` en Railway
+3. Forzar redeploy en Railway (botón "Redeploy")
+4. Monitorear logs en tiempo real
 
 ---
 
 ## 📋 VERIFICACIÓN POST-DEPLOYMENT
 
-### 1. Verificar Backend en Railway
+### 1. Verificar Backend Railway
 
-**Logs Esperados (SUCCESS):**
-```log
-2025-12-01T00:XX:XX INFO o.f.core.internal.command.DbMigrate : Current version of schema "public": 5
-2025-12-01T00:XX:XX INFO o.f.core.internal.command.DbMigrate : Migrating schema "public" to version "7 - cleanup for bcrypt users"
-2025-12-01T00:XX:XX NOTICE: ✅ [V7] Usuario administrador creado correctamente con BCrypt
-2025-12-01T00:XX:XX NOTICE: ✅ [V7] Usuario empleado creado correctamente con BCrypt
-2025-12-01T00:XX:XX NOTICE: 🔐 [V7] Credentials - admin@milsabores.cl / admin
-2025-12-01T00:XX:XX INFO Started BackendApplication in X.XXX seconds
+```bash
+# URL Backend Railway
+https://pasteleriafullstackfinal-production.up.railway.app
+
+# Health Check
+curl https://pasteleriafullstackfinal-production.up.railway.app/actuator/health
+
+# Respuesta esperada:
+# {"status":"UP"}
 ```
 
-**Logs de Error (FAILED - requiere reparación manual):**
-```log
-ERROR: Migration of schema "public" to version "6" failed!
-# Si ves esto → ejecutar REPARACION_MANUAL_SUPABASE.sql
-```
-
-### 2. Verificar Supabase Database
-
-Conectar a Supabase SQL Editor y ejecutar:
+### 2. Verificar Flyway Migrations en Supabase
 
 ```sql
--- Verificar usuarios BCrypt creados
-SELECT id, rut, nombre, correo, rol_id FROM usuarios ORDER BY id;
--- Esperado:
--- 1 | 11111111-1 | Administrador | admin@milsabores.cl | (ADMIN)
--- 2 | 22222222-2 | Empleado | empleado@milsabores.cl | (EMPLEADO)
+-- Ejecutar en Supabase SQL Editor
+SELECT version, description, installed_on, success
+FROM flyway_schema_history
+ORDER BY installed_rank DESC;
 
--- Verificar historial Flyway
-SELECT version, description, success FROM flyway_schema_history ORDER BY installed_rank;
--- Esperado: versión 7 con success=true
+-- ESPERADO DESPUÉS DE FIX:
+-- version | description | success
+-- 7 | cleanup for bcrypt users | true
+-- 5 | ... | true
+-- 
+-- SI VES version=6 con success=false:
+-- → Ejecutar Instrucciones/REPARACION_MANUAL_SUPABASE.sql
 ```
 
-### 3. Probar Frontend
+### 3. Verificar Usuarios BCrypt Creados
 
-#### Login Administrador
+### 3. Verificar Usuarios BCrypt Creados
+
+```sql
+-- Verificar usuarios creados por V7 (en Supabase SQL Editor)
+SELECT id, rut, nombre, correo, rol_id FROM usuarios ORDER BY id;
+
+-- ESPERADO (confirmado por usuario):
+-- 1 | 11111111-1 | Administrador | admin@milsabores.cl | (ADMIN)
+-- 2 | 22222222-2 | Empleado | empleado@milsabores.cl | (EMPLEADO)
+```
+
+### 4. Probar Frontend Vercel
+
+#### Login Administrador ✅
 - **URL:** https://pasteleria-full-stack-final.vercel.app/login
+- **Credenciales:**
+  * Email: `admin@milsabores.cl`
+  * Password: `admin`
+- **Esperado:** Redirección a `/backoffice` después de login exitoso
+
+#### Login Empleado ✅
+- **Email:** `empleado@milsabores.cl`
+- **Password:** `empleado`
+- **Esperado:** Acceso a backoffice con permisos limitados
+
+#### Verificar Categorías NO Timeout
+- **URL:** https://pasteleria-full-stack-final.vercel.app
+- **Esperado:** Categorías cargan en < 3 segundos
+- **Consola Chrome (F12):** Debe mostrar `✅ [RESPONSE SUCCESS] 200` sin `timeout of 10000ms exceeded`
+
+---
+
+## 🔐 CREDENCIALES FINALES (PRODUCCIÓN)
+
+```bash
+# BACKEND RAILWAY
+URL: https://pasteleriafullstackfinal-production.up.railway.app
+Health: https://pasteleriafullstackfinal-production.up.railway.app/actuator/health
+
+# FRONTEND VERCEL
+URL: https://pasteleria-full-stack-final.vercel.app
+
+# USUARIOS BCrypt (Supabase)
+Admin: admin@milsabores.cl / admin
+Empleado: empleado@milsabores.cl / empleado
+
+# SUPABASE DATABASE
+Dashboard: https://supabase.com/dashboard/project/dzbeucldelrjdjprfday
+SQL Editor: https://supabase.com/dashboard/project/dzbeucldelrjdjprfday/sql
+```
+
+---
+
+## 🚨 REPARACIÓN DE EMERGENCIA
+
+### Si Railway NO inicia después de limpieza de conexiones:
+
+1. **Ejecutar EMERGENCIA_SUPABASE_LIMPIAR_CONEXIONES.sql** (Paso 1-4)
+   - Termina conexiones zombies
+   - Verifica que hay < 10 conexiones activas
+
+2. **Reducir Pool a 2 Conexiones** (Railway Variables)
+   ```bash
+   HIKARI_MAX_POOL_SIZE=2
+   HIKARI_MIN_IDLE=1
+   ```
+
+3. **Forzar Redeploy en Railway**
+   - Railway Dashboard → Deployments → Redeploy
+
+4. **Si FLYWAY falla con V6**
+   - Ejecutar `Instrucciones/REPARACION_MANUAL_SUPABASE.sql`
+   - Eliminar registro V6 de `flyway_schema_history`
+
+---
+
+## 📊 RESUMEN ARQUITECTURA DESPLEGADA
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│                       USUARIO FINAL                           │
+└──────────────┬───────────────────────────────────────────────┘
+               │
+               │ HTTPS
+               ▼
+┌──────────────────────────────────────────────────────────────┐
+│  VERCEL (Frontend - React + Vite)                            │
+│  URL: https://pasteleria-full-stack-final.vercel.app        │
+│  - Auto-deploy desde master                                 │
+│  - Variables: VITE_API_URL, VITE_SUPABASE_*                 │
+└──────────────┬───────────────────────────────────────────────┘
+               │
+               │ REST API (JWT Auth)
+               ▼
+┌──────────────────────────────────────────────────────────────┐
+│  RAILWAY (Backend - Spring Boot 3.2.3 + PostgreSQL)         │
+│  URL: https://pasteleriafullstackfinal-production...        │
+│  - Auto-deploy desde master (Maven build)                   │
+│  - HikariCP: 3 conexiones máx (optimizado)                  │
+│  - Flyway: migraciones automáticas                          │
+│  - Variables: JWT_SECRET, FRONTEND_URL, DATABASE_URL        │
+└──────────────┬───────────────────────────────────────────────┘
+               │
+               │ PostgreSQL Connection (max 3 per instance)
+               ▼
+┌──────────────────────────────────────────────────────────────┐
+│  SUPABASE (PostgreSQL + Storage)                             │
+│  - Database: postgres (Free Tier: 20 conexiones máx)        │
+│  - Storage: Bucket 'pasteles' (imágenes productos)          │
+│  - Transaction Pooler: prepareThreshold=0                   │
+└──────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 📝 PRÓXIMOS PASOS RECOMENDADOS
+
+### Optimización Performance
+1. ✅ Pool de conexiones optimizado (3 máx)
+2. ⏳ Monitorear logs Railway para leak-detection warnings
+3. ⏳ Considerar Supabase Pro si se necesitan > 6 instancias Railway
+
+### Seguridad
+1. ✅ BCrypt passwords implementado
+2. ✅ JWT con secret en variables de entorno
+3. ⏳ Rotar JWT_SECRET cada 90 días
+4. ⏳ Implementar rate limiting para login
+
+### Monitoreo
+1. ⏳ Configurar alertas Railway para `Max client connections`
+2. ⏳ Dashboard Supabase para monitorear conexiones activas
+3. ⏳ Logs centralizados (Sentry/Datadog)
+
+---
+
+**ÚLTIMA ACTUALIZACIÓN**: 2024-12-01 - Fix Pool Conexiones + Limpieza Zombies
+**ESTADO**: ⏳ Requiere ejecución manual de scripts SQL en Supabase
+**PRÓXIMO HITO**: Verificar frontend conecta correctamente después de fix
 - **Credenciales:**
   ```
   Email: admin@milsabores.cl
