@@ -33,14 +33,20 @@ public class Producto {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Categoria categoria;
 
-    // CRITICAL FIX: fetch=EAGER prevents LazyInitializationException during JSON serialization
-    // Without EAGER, Hibernate closes session before Jackson serializes, causing empty variantes[] in response
-    // Build timestamp: 2025-12-01 Railway deployment verification
-    @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    /**
+     * FIX PgBouncer compatibility (2025-12-01):
+     * - Changed from FetchType.EAGER to FetchType.LAZY
+     * - EAGER caused Hibernate to execute BOTH: JOIN FETCH (explicit) AND separate queries (EAGER)
+     * - Separate EAGER queries fail in PgBouncer transaction pooling (return 0 rows)
+     * - Now we rely ONLY on JOIN FETCH in ProductoRepository.*WithCollections() methods
+     * - JOIN FETCH loads collections in single query, avoiding session/pooling issues
+     * - @Transactional(readOnly=true) in Service ensures session stays open for Jackson serialization
+     */
+    @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonManagedReference("producto-variantes")
     private Set<VarianteProducto> variantes = new HashSet<>();
     
-    @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonManagedReference("producto-imagenes")
     private Set<ImagenProducto> imagenes = new HashSet<>();
 }
