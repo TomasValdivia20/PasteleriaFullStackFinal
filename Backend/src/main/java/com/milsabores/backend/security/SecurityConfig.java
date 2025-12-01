@@ -67,7 +67,6 @@ public class SecurityConfig {
                     "/api/auth/registro",                     // Registro público
                     "/api/imagenes/**",                       // Imágenes públicas
                     "/actuator/health",                       // Health check
-                    "/api/debug/**",                          // DEBUG: Diagnóstico temporal
                     "/api/admin/**"                           // TEMPORAL: Admin endpoints
                 ).permitAll()
                 
