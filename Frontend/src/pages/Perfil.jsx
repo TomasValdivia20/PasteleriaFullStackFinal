@@ -24,10 +24,10 @@ export default function Perfil() {
         setLoading(true);
         setError(null);
 
-        console.log("📡 [PERFIL] Cargando datos del usuario ID:", usuarioLocal.id);
+        console.log("📡 [PERFIL] Cargando datos del usuario autenticado");
         
-        // Cargar datos actualizados desde el backend
-        const response = await api.get(`/usuarios/${usuarioLocal.id}`);
+        // Usar endpoint de perfil autenticado (no requiere ID, usa token JWT)
+        const response = await api.get('/auth/perfil');
         
         console.log("✅ [PERFIL] Datos cargados:", response.data);
         setUsuarioCompleto(response.data);
@@ -38,6 +38,7 @@ export default function Perfil() {
         
         // Si el error es 401/403, cerrar sesión
         if (err.response?.status === 401 || err.response?.status === 403) {
+          console.warn("⚠️ [PERFIL] Token inválido o expirado, cerrando sesión");
           logout();
           navigate("/login");
         }

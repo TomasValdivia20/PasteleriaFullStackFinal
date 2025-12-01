@@ -3,15 +3,19 @@ package com.milsabores.backend.controller;
 import com.milsabores.backend.dto.LoginRequest;
 import com.milsabores.backend.dto.LoginResponse;
 import com.milsabores.backend.model.Usuario;
+import com.milsabores.backend.repository.UsuarioRepository;
 import com.milsabores.backend.service.AuthService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Controlador REST para autenticación
@@ -24,10 +28,12 @@ public class AuthController {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
     private final AuthService authService;
+    private final UsuarioRepository usuarioRepository;
 
     @Autowired
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, UsuarioRepository usuarioRepository) {
         this.authService = authService;
+        this.usuarioRepository = usuarioRepository;
     }
 
     /**
@@ -87,6 +93,48 @@ public class AuthController {
             logger.error("❌ [REGISTRO] Error inesperado: {}", e.getMessage());
             LoginResponse errorResponse = new LoginResponse("Error al procesar el registro", false);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+
+    /**
+     * Endpoint para obtener perfil del usuario autenticado
+     * GET /api/auth/perfil
+     * Requiere token JWT válido
+     */
+    @GetMapping("/perfil")
+    public ResponseEntity<?> obtenerPerfil() {
+        logger.info("👤 [REQUEST] GET /api/auth/perfil");
+
+        try {
+            // Obtener usuario autenticado desde SecurityContext
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            
+            if (authentication == null || !authentication.isAuthenticated()) {
+                logger.warn("⚠️ [PERFIL] Usuario no autenticado");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("mensaje", "Usuario no autenticado"));
+            }
+
+            String correo = authentication.getName();
+            logger.info("📧 [PERFIL] Usuario autenticado: {}", correo);
+
+            Optional<Usuario> usuarioOpt = usuarioRepository.findByCorreo(correo);
+            
+            if (usuarioOpt.isEmpty()) {
+                logger.warn("⚠️ [PERFIL] Usuario no encontrado en BD: {}", correo);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("mensaje", "Usuario no encontrado"));
+            }
+
+            Usuario usuario = usuarioOpt.get();
+            logger.info("✅ [PERFIL] Perfil cargado - ID: {}, Rol: {}", usuario.getId(), usuario.getRol().getNombre());
+
+            return ResponseEntity.ok(usuario);
+            
+        } catch (Exception e) {
+            logger.error("❌ [PERFIL] Error inesperado: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("mensaje", "Error al obtener perfil"));
         }
     }
 }
