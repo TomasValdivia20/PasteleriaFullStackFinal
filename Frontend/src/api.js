@@ -1,4 +1,5 @@
 import axios from 'axios';
+import logger from './utils/logger';
 
 // Configuración de la URL base desde variable de entorno
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
@@ -6,20 +7,21 @@ const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 // ===== VALIDACIÓN DE URL =====
 // Detectar configuraciones incorrectas que causan errores silenciosos
 if (BASE_URL && !BASE_URL.startsWith('http://') && !BASE_URL.startsWith('https://')) {
-    console.error('❌ [API CONFIG ERROR] URL malformada - falta protocolo (http:// o https://)');
-    console.error('   URL actual:', BASE_URL);
-    console.error('   ⚠️  Esto causará que las peticiones fallen');
-    console.error('   ✅ Debe ser: https://backend.railway.app/api');
-    console.error('   ❌ Incorrecto: backend.railway.app/api');
+    logger.error('URL malformada - falta protocolo', null, {
+        url: BASE_URL,
+        expected: 'https://backend.railway.app/api',
+        invalid: 'backend.railway.app/api'
+    });
 }
 
 if (BASE_URL && !BASE_URL.includes('/api')) {
-    console.warn('⚠️  [API CONFIG WARNING] URL no incluye /api');
-    console.warn('   URL actual:', BASE_URL);
-    console.warn('   ✅ Recomendado: https://backend.railway.app/api');
+    logger.warn('URL no incluye /api', {
+        url: BASE_URL,
+        recommended: 'https://backend.railway.app/api'
+    });
 }
 
-console.log('🔧 [API CONFIG] Inicializando cliente API con baseURL:', BASE_URL);
+logger.info('Cliente API inicializado', { baseURL: BASE_URL });
 
 const api = axios.create({
     baseURL: BASE_URL,
@@ -32,11 +34,6 @@ const api = axios.create({
 // ===== INTERCEPTOR DE REQUEST =====
 api.interceptors.request.use(
     (config) => {
-        const timestamp = new Date().toISOString();
-        console.log(`📤 [REQUEST] ${timestamp}`);
-        console.log(`   Method: ${config.method?.toUpperCase()}`);
-        console.log(`   URL: ${config.baseURL}${config.url}`);
-        
         // 🔐 AGREGAR TOKEN JWT SI EXISTE
         const usuarioData = localStorage.getItem('usuario');
         if (usuarioData) {
@@ -44,28 +41,33 @@ api.interceptors.request.use(
                 const usuario = JSON.parse(usuarioData);
                 if (usuario.token) {
                     config.headers.Authorization = `Bearer ${usuario.token}`;
-                    console.log(`   🔑 Token JWT agregado al header`);
                 }
             } catch (error) {
-                console.error('❌ Error al parsear usuario de localStorage:', error);
+                logger.error('Error parseando usuario de localStorage', error);
             }
         }
         
-        console.log(`   Headers:`, config.headers);
-        if (config.params) {
-            console.log(`   Params:`, config.params);
-        }
-        if (config.data) {
-            console.log(`   Data:`, config.data);
-        }
+        // Agregar correlation ID para rastrear request
+        config.headers['X-Correlation-ID'] = logger.correlationId;
         
-        // Agregar timestamp para medir tiempo de respuesta
+        // Timestamp para medir duración
         config.metadata = { startTime: Date.now() };
+        
+        // Log request
+        logger.api(
+            config.method?.toUpperCase() || 'GET',
+            `${config.baseURL}${config.url}`,
+            'REQUEST',
+            {
+                params: config.params,
+                hasAuth: !!config.headers.Authorization
+            }
+        );
         
         return config;
     },
     (error) => {
-        console.error('❌ [REQUEST ERROR]', error);
+        logger.error('Error en request interceptor', error);
         return Promise.reject(error);
     }
 );
@@ -74,69 +76,79 @@ api.interceptors.request.use(
 api.interceptors.response.use(
     (response) => {
         const duration = Date.now() - response.config.metadata.startTime;
-        const timestamp = new Date().toISOString();
         
-        console.log(`📥 [RESPONSE SUCCESS] ${timestamp}`);
-        console.log(`   URL: ${response.config.url}`);
-        console.log(`   Status: ${response.status} ${response.statusText}`);
-        console.log(`   Duration: ${duration}ms`);
-        console.log(`   Data Type: ${Array.isArray(response.data) ? 'Array' : typeof response.data}`);
+        // Log response exitoso
+        logger.api(
+            response.config.method?.toUpperCase() || 'GET',
+            response.config.url,
+            response.status,
+            {
+                duration: `${duration}ms`,
+                dataType: Array.isArray(response.data) ? 'Array' : typeof response.data,
+                dataSize: Array.isArray(response.data) ? response.data.length : undefined
+            }
+        );
         
         // ===== VALIDACIÓN DE RESPUESTA =====
         // Detectar cuando el backend responde con HTML en vez de JSON
         if (typeof response.data === 'string') {
             const trimmedData = response.data.trim();
             if (trimmedData.startsWith('<!doctype') || trimmedData.startsWith('<html')) {
-                console.error('❌ [API RESPONSE ERROR] Backend respondió con HTML en vez de JSON');
-                console.error('   Esto significa que la URL está apuntando al frontend, no al backend API');
-                console.error('   URL solicitada:', response.config.url);
-                console.error('   Base URL:', response.config.baseURL);
-                console.error('   ⚠️  Posibles causas:');
-                console.error('      1. VITE_API_URL no incluye /api al final');
-                console.error('      2. Backend no está sirviendo la API en esa ruta');
-                console.error('      3. Problema de routing en el servidor');
+                logger.error('Backend respondió con HTML en vez de JSON', null, {
+                    url: response.config.url,
+                    baseURL: response.config.baseURL,
+                    causes: [
+                        'VITE_API_URL no incluye /api al final',
+                        'Backend no está sirviendo la API en esa ruta',
+                        'Problema de routing en el servidor'
+                    ]
+                });
                 
-                // Lanzar error para que se maneje en el catch
                 throw new Error('Backend respondió con HTML en vez de JSON. Verifica VITE_API_URL incluya /api');
             }
         }
         
-        if (Array.isArray(response.data)) {
-            console.log(`   Data Length: ${response.data.length} items`);
-            if (response.data.length > 0) {
-                console.log(`   First Item Sample:`, response.data[0]);
-            }
-        } else {
-            console.log(`   Data:`, response.data);
+        // Log data sample si es array
+        if (Array.isArray(response.data) && response.data.length > 0) {
+            logger.debug('Response data sample', {
+                length: response.data.length,
+                firstItem: response.data[0]
+            });
         }
         
         return response;
     },
     (error) => {
-        const timestamp = new Date().toISOString();
-        console.error(`❌ [RESPONSE ERROR] ${timestamp}`);
-        
         if (error.response) {
             // El servidor respondió con un código de error
-            console.error(`   Status: ${error.response.status} ${error.response.statusText}`);
-            console.error(`   URL: ${error.config?.url}`);
-            console.error(`   Method: ${error.config?.method?.toUpperCase()}`);
-            console.error(`   Response Data:`, error.response.data);
-            console.error(`   Response Headers:`, error.response.headers);
+            logger.apiError(
+                error.config?.method?.toUpperCase() || 'UNKNOWN',
+                error.config?.url || 'UNKNOWN',
+                error,
+                {
+                    status: error.response.status,
+                    statusText: error.response.statusText,
+                    data: error.response.data,
+                    headers: error.response.headers
+                }
+            );
         } else if (error.request) {
             // La petición fue hecha pero no hubo respuesta
-            console.error(`   No response received`);
-            console.error(`   URL: ${error.config?.url}`);
-            console.error(`   Method: ${error.config?.method?.toUpperCase()}`);
-            console.error(`   Request:`, error.request);
-            console.error(`   ⚠️  Posibles causas:`);
-            console.error(`      - Backend no está corriendo`);
-            console.error(`      - Problemas de red/CORS`);
-            console.error(`      - URL incorrecta: ${error.config?.baseURL}${error.config?.url}`);
+            logger.error('No se recibió respuesta del servidor', error, {
+                url: `${error.config?.baseURL}${error.config?.url}`,
+                method: error.config?.method?.toUpperCase(),
+                causes: [
+                    'Backend no está corriendo',
+                    'Problemas de red/CORS',
+                    'URL incorrecta'
+                ]
+            });
         } else {
             // Algo sucedió al configurar la petición
-            console.error(`   Error Message: ${error.message}`);
-            console.error(`   Error Config:`, error.config);
+            logger.error('Error configurando request', error, {
+                message: error.message,
+                config: error.config
+            });
         }
         
         return Promise.reject(error);

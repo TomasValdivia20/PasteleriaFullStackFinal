@@ -5,6 +5,8 @@ import com.milsabores.backend.model.Producto;
 import com.milsabores.backend.model.VarianteProducto;
 import com.milsabores.backend.repository.CategoriaRepository;
 import com.milsabores.backend.repository.ProductoRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -17,6 +19,8 @@ import java.util.List;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
+    
+    private static final Logger logger = LoggerFactory.getLogger(DataInitializer.class);
 
     @Autowired
     private CategoriaRepository categoriaRepository;
@@ -29,11 +33,11 @@ public class DataInitializer implements CommandLineRunner {
     public void run(String... args) throws Exception {
         // Solo cargamos datos si la base de datos está vacía
         if (categoriaRepository.count() == 0) {
-            System.out.println("--- INICIANDO CARGA DE DATOS MAESTROS ---");
+            logger.info("=== INICIANDO CARGA DE DATOS MAESTROS ===");
             cargarDatos();
-            System.out.println("--- CARGA DE DATOS FINALIZADA ---");
+            logger.info("=== CARGA DE DATOS FINALIZADA ===");
         } else {
-            System.out.println("--- LA BASE DE DATOS YA TIENE DATOS ---");
+            logger.info("=== LA BASE DE DATOS YA TIENE DATOS ===");
         }
     }
 

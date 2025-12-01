@@ -100,6 +100,18 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- 7.2 AOP - Aspect Oriented Programming para Logging -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+
+        <!-- 7.3 ACTUATOR - Monitoreo y métricas -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
         <!-- 8. TEST (Solo este starter incluye todo lo necesario para tests) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

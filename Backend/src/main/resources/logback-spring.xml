@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- ===================================================================
+         LOGBACK CONFIGURATION - MIL SABORES PASTELERIA
+         
+         Perfiles:
+         - development: Logs detallados en consola con colores
+         - production: Logs estructurados para Railway, sin debug
+         
+         MDC (Mapped Diagnostic Context):
+         - correlationId: ID único por request para trace distribuido
+         - userId: Usuario autenticado (si existe)
+         - requestUri: Path del endpoint
+         
+         Appenders:
+         - CONSOLE: Salida estándar (Railway captura esto)
+         - FILE: Archivo local (solo desarrollo)
+    ================================================================== -->
+
+    <!-- Variables globales -->
+    <property name="LOG_PATH" value="${LOG_PATH:-logs}" />
+    <property name="LOG_FILE" value="${LOG_FILE:-backend}" />
+    
+    <!-- Pattern para DESARROLLO (con colores) -->
+    <property name="CONSOLE_LOG_PATTERN_DEV" 
+              value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%5p) %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %clr([%X{correlationId}]){magenta} %m%n%wEx"/>
+    
+    <!-- Pattern para PRODUCCION (sin colores, Railway-friendly) -->
+    <property name="CONSOLE_LOG_PATTERN_PROD" 
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} %5p [%t] %-40.40logger{39} : [correlationId=%X{correlationId}] [userId=%X{userId}] [uri=%X{requestUri}] %m%n%wEx"/>
+    
+    <!-- Pattern para archivo (mismo que producción) -->
+    <property name="FILE_LOG_PATTERN" 
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} %5p [%t] %-40.40logger{39} : [correlationId=%X{correlationId}] [userId=%X{userId}] [uri=%X{requestUri}] %m%n%wEx"/>
+
+    <!-- ===================================================================
+         APPENDER: CONSOLE (Desarrollo)
+    ================================================================== -->
+    <appender name="CONSOLE_DEV" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${CONSOLE_LOG_PATTERN_DEV}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+    
+    <!-- ===================================================================
+         APPENDER: CONSOLE (Producción - Railway)
+    ================================================================== -->
+    <appender name="CONSOLE_PROD" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${CONSOLE_LOG_PATTERN_PROD}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- ===================================================================
+         APPENDER: FILE (Solo desarrollo local)
+    ================================================================== -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/${LOG_FILE}.log</file>
+        <encoder>
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- Rotación diaria -->
+            <fileNamePattern>${LOG_PATH}/${LOG_FILE}-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <!-- Mantener 7 días de logs -->
+            <maxHistory>7</maxHistory>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <!-- Rotar si excede 10MB -->
+                <maxFileSize>10MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+    </appender>
+
+    <!-- ===================================================================
+         LOGGERS POR PAQUETE - Niveles personalizados
+    ================================================================== -->
+    
+    <!-- Aplicación Mil Sabores -->
+    <logger name="com.milsabores.backend" level="DEBUG" additivity="false">
+        <appender-ref ref="CONSOLE_DEV" />
+        <appender-ref ref="FILE" />
+    </logger>
+    
+    <!-- Spring Framework -->
+    <logger name="org.springframework.web" level="INFO" />
+    <logger name="org.springframework.security" level="INFO" />
+    <logger name="org.springframework.boot" level="INFO" />
+    
+    <!-- Hibernate / JPA -->
+    <logger name="org.hibernate" level="WARN" />
+    <logger name="org.hibernate.SQL" level="DEBUG" />
+    <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE" />
+    <logger name="org.hibernate.engine.transaction.internal.TransactionImpl" level="DEBUG" />
+    
+    <!-- HikariCP (Connection Pool) -->
+    <logger name="com.zaxxer.hikari" level="DEBUG" />
+    <logger name="com.zaxxer.hikari.HikariConfig" level="DEBUG" />
+    <logger name="com.zaxxer.hikari.pool.HikariPool" level="DEBUG" />
+    
+    <!-- Flyway -->
+    <logger name="org.flywaydb" level="INFO" />
+    
+    <!-- JWT / Security -->
+    <logger name="io.jsonwebtoken" level="INFO" />
+
+    <!-- ===================================================================
+         PERFIL: DEVELOPMENT
+    ================================================================== -->
+    <springProfile name="development,dev,default">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE_DEV" />
+            <appender-ref ref="FILE" />
+        </root>
+        
+        <!-- DEBUG habilitado para app -->
+        <logger name="com.milsabores.backend" level="DEBUG" />
+        
+        <!-- SQL queries visibles -->
+        <logger name="org.hibernate.SQL" level="DEBUG" />
+    </springProfile>
+
+    <!-- ===================================================================
+         PERFIL: PRODUCTION (Railway)
+    ================================================================== -->
+    <springProfile name="production,prod">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE_PROD" />
+        </root>
+        
+        <!-- Solo INFO/WARN/ERROR en producción -->
+        <logger name="com.milsabores.backend" level="INFO" />
+        
+        <!-- HikariCP en DEBUG para monitorear conexiones -->
+        <logger name="com.zaxxer.hikari" level="DEBUG" />
+        
+        <!-- Sin SQL queries en producción -->
+        <logger name="org.hibernate.SQL" level="WARN" />
+        
+        <!-- Hibernate lazy loading issues en WARN -->
+        <logger name="org.hibernate.LazyInitializationException" level="WARN" />
+    </springProfile>
+
+    <!-- ===================================================================
+         PERFIL: TEST
+    ================================================================== -->
+    <springProfile name="test">
+        <root level="WARN">
+            <appender-ref ref="CONSOLE_DEV" />
+        </root>
+        
+        <!-- Solo errores en tests -->
+        <logger name="com.milsabores.backend" level="ERROR" />
+        <logger name="org.springframework" level="ERROR" />
+    </springProfile>
+
+</configuration>
