@@ -1,11 +1,12 @@
 package com.milsabores.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import org.hibernate.annotations.OnDelete; // Importar
-import org.hibernate.annotations.OnDeleteAction; // Importar
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,13 +30,14 @@ public class Producto {
 
     @ManyToOne
     @JoinColumn(name = "categoria_id")
-    // Fuerza a la base de datos a configurar la llave foránea con "ON DELETE CASCADE"
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Categoria categoria;
 
     @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("producto-variantes")
     private Set<VarianteProducto> variantes = new HashSet<>();
     
     @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("producto-imagenes")
     private Set<ImagenProducto> imagenes = new HashSet<>();
 }

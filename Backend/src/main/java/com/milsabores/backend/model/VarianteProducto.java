@@ -1,6 +1,6 @@
 package com.milsabores.backend.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore; // <--- para evitar bucles de info
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,6 +23,6 @@ public class VarianteProducto {
 
     @ManyToOne
     @JoinColumn(name = "producto_id", nullable = false)
-    @JsonIgnore // <---Evita el bucle infinito.
+    @JsonBackReference("producto-variantes")
     private Producto producto;
 }

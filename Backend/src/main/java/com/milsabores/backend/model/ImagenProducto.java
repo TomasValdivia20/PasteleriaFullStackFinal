@@ -1,6 +1,6 @@
 package com.milsabores.backend.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,7 +24,7 @@ public class ImagenProducto {
     
     @ManyToOne
     @JoinColumn(name = "producto_id", nullable = false)
-    @JsonIgnore // Evita recursión infinita al serializar
+    @JsonBackReference("producto-imagenes")
     private Producto producto;
     
     /**
