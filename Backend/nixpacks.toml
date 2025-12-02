@@ -1,14 +1,29 @@
-# Nixpacks configuration for Railway deployment
-# https://nixpacks.com/docs/configuration/file
+# ===================================================================
+# NIXPACKS CONFIGURATION - RAILWAY DEPLOYMENT
+# ===================================================================
+# Fuerza rebuild completo sin cache para aplicar cambios de configuración
+# Railway usa Nixpacks para detectar y buildear proyectos automáticamente
+# Actualizado: 2025-12-02 - Forzar rebuild sin cache Maven
 
 [phases.setup]
-nixPkgs = ["...", "maven", "jdk17"]
+nixPkgs = ["maven", "jdk17"]
 
 [phases.build]
+# Forzar limpieza completa antes de build
+# clean: Elimina target/ completo
+# -U: Fuerza actualización de dependencias desde repositorios remotos
+# -DskipTests: Skip tests para build más rápido
+# -Dmaven.test.skip=true: Skip compilación de tests
 cmds = [
     "chmod +x ./mvnw",
-    "./mvnw clean package -DskipTests -Dmaven.test.skip=true"
+    "./mvnw clean package -U -DskipTests -Dmaven.test.skip=true"
 ]
 
 [start]
-cmd = "java -Dspring.profiles.active=production -Dserver.port=$PORT -jar target/backend-0.0.1-SNAPSHOT.jar"
+# Comando de inicio con configuración JVM optimizada para Railway Free Tier
+# -Xmx400m: Memoria máxima heap (Railway Free Tier ~512MB RAM)
+# -Xms200m: Memoria inicial heap
+# -XX:MaxMetaspaceSize=100m: Memoria máxima para metadatos de clases
+# -Dspring.profiles.active=production: Activa perfil de producción
+# -Dserver.port=$PORT: Puerto dinámico asignado por Railway
+cmd = "java -Xmx400m -Xms200m -XX:MaxMetaspaceSize=100m -Dspring.profiles.active=production -Dserver.port=$PORT -jar target/backend-0.0.1-SNAPSHOT.jar"
