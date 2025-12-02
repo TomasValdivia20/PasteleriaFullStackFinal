@@ -1,5 +1,7 @@
 # 🚂 INSTRUCCIONES DE DEPLOYMENT - RAILWAY
 
+> **⚠️ ADVERTENCIA CRÍTICA:** Si Railway NO está aplicando cambios de configuración (sigue mostrando `maximumPoolSize=10`), consulta **[RAILWAY_VARIABLES_OBLIGATORIAS.md](../RAILWAY_VARIABLES_OBLIGATORIAS.md)** para forzar override.
+
 ## 📋 TABLA DE CONTENIDOS
 1. [Variables de Entorno Obligatorias](#variables-de-entorno-obligatorias)
 2. [Variables de Entorno Opcionales](#variables-de-entorno-opcionales)
@@ -57,7 +59,13 @@ SUPABASE_BUCKET=pasteles
 ## ⚙️ VARIABLES DE ENTORNO OPCIONALES
 
 ### HikariCP Connection Pool (valores seguros por defecto)
-Estas variables **NO son necesarias** porque el código ya tiene valores seguros por defecto (2, 1).  
+
+> **💡 NOTA IMPORTANTE:** Estas variables **NO son necesarias** si el código se deploye correctamente.  
+> El código ya tiene valores seguros por defecto (2 max, 1 min).  
+>  
+> **⚠️ SI RAILWAY IGNORA LOS DEFAULTS DEL CÓDIGO:**  
+> Consulta **[../RAILWAY_VARIABLES_OBLIGATORIAS.md](../RAILWAY_VARIABLES_OBLIGATORIAS.md)** para configurar estas variables explícitamente y forzar override.
+
 Solo configúralas si necesitas ajustar el pool de conexiones:
 
 ```bash
