@@ -34,19 +34,24 @@ public class Producto {
     private Categoria categoria;
 
     /**
-     * FIX PgBouncer compatibility (2025-12-01):
-     * - Changed from FetchType.EAGER to FetchType.LAZY
-     * - EAGER caused Hibernate to execute BOTH: JOIN FETCH (explicit) AND separate queries (EAGER)
-     * - Separate EAGER queries fail in PgBouncer transaction pooling (return 0 rows)
-     * - Now we rely ONLY on JOIN FETCH in ProductoRepository.*WithCollections() methods
-     * - JOIN FETCH loads collections in single query, avoiding session/pooling issues
-     * - @Transactional(readOnly=true) in Service ensures session stays open for Jackson serialization
+     * FIX Session Pooler compatibility (2025-12-13):
+     * PROBLEMA: Session Pooler + LAZY + JOIN FETCH retorna variantes vacías
+     * CAUSA: Session cierra antes de serialización JSON, lazy collections se pierden
+     * SOLUCIÓN: Cambiar a EAGER para forzar carga inmediata en la query principal
+     * 
+     * JOIN FETCH + EAGER garantiza:
+     * - Una sola query con JOIN (no queries separadas)
+     * - Collections cargadas antes de cerrar session
+     * - Serializació JSON sin LazyInitializationException
+     * 
+     * NOTA: EAGER solo ejecuta queries separadas si NO usamos JOIN FETCH
+     * Como SIEMPRE usamos findByIdWithCollections() con JOIN FETCH, es seguro
      */
-    @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @JsonManagedReference("producto-variantes")
     private Set<VarianteProducto> variantes = new HashSet<>();
     
-    @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @JsonManagedReference("producto-imagenes")
     private Set<ImagenProducto> imagenes = new HashSet<>();
 }
