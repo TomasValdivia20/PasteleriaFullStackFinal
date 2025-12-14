@@ -3,6 +3,18 @@ import { Link } from "react-router-dom";
 import api from "../api";
 import "./css/styles.css";
 
+// Tamaños predefinidos para dropdown
+const TAMANOS_PREDEFINIDOS = [
+  '12 Personas',
+  '16 Personas',
+  '20 Personas',
+  '25 Personas',
+  '30 Personas',
+  '40 Personas',
+  '50 Personas',
+  'Tamaño Único'
+];
+
 export default function Producto() {
   const [productos, setProductos] = useState([]);
   const [categorias, setCategorias] = useState([]);
@@ -15,7 +27,14 @@ export default function Producto() {
     precioBase: '',
     imagen: '',
     categoriaId: '',
-    variantes: [{ nombre: '', precio: '', stock: '', infoNutricional: '' }]
+    variantes: [{ 
+      tipoTamano: 'predefinido', 
+      tamanoSeleccionado: '', 
+      nombre: '', 
+      precio: '', 
+      stock: '', 
+      infoNutricional: '' 
+    }]
   });
   const [mensaje, setMensaje] = useState({ texto: '', tipo: '' });
 
@@ -47,14 +66,39 @@ export default function Producto() {
 
   const handleVarianteChange = (index, field, value) => {
     const nuevasVariantes = [...formData.variantes];
-    nuevasVariantes[index][field] = value;
+    
+    if (field === 'tipoTamano') {
+      nuevasVariantes[index].tipoTamano = value;
+      if (value === 'predefinido') {
+        nuevasVariantes[index].tamanoSeleccionado = '';
+        nuevasVariantes[index].nombre = '';
+      } else {
+        // Modo especial
+        nuevasVariantes[index].tamanoSeleccionado = 'especial';
+        nuevasVariantes[index].nombre = '';
+      }
+    } else if (field === 'tamanoSeleccionado' && nuevasVariantes[index].tipoTamano === 'predefinido') {
+      // Actualizar tanto tamanoSeleccionado como nombre
+      nuevasVariantes[index].tamanoSeleccionado = value;
+      nuevasVariantes[index].nombre = value;
+    } else {
+      nuevasVariantes[index][field] = value;
+    }
+    
     setFormData({ ...formData, variantes: nuevasVariantes });
   };
 
   const agregarVariante = () => {
     setFormData({
       ...formData,
-      variantes: [...formData.variantes, { nombre: '', precio: '', stock: '', infoNutricional: '' }]
+      variantes: [...formData.variantes, { 
+        tipoTamano: 'predefinido', 
+        tamanoSeleccionado: '', 
+        nombre: '', 
+        precio: '', 
+        stock: '', 
+        infoNutricional: '' 
+      }]
     });
   };
 
@@ -75,7 +119,14 @@ export default function Producto() {
       precioBase: '', 
       imagen: '', 
       categoriaId: '',
-      variantes: [{ nombre: '', precio: '', stock: '', infoNutricional: '' }]
+      variantes: [{ 
+        tipoTamano: 'predefinido', 
+        tamanoSeleccionado: '', 
+        nombre: '', 
+        precio: '', 
+        stock: '', 
+        infoNutricional: '' 
+      }]
     });
     setMostrarFormulario(true);
   };
@@ -89,13 +140,26 @@ export default function Producto() {
       imagen: producto.imagen || '',
       categoriaId: producto.categoria?.id || '',
       variantes: producto.variantes && producto.variantes.length > 0 
-        ? producto.variantes.map(v => ({
-            nombre: v.nombre || '',
-            precio: v.precio || '',
-            stock: v.stock || '',
-            infoNutricional: v.infoNutricional || ''
-          }))
-        : [{ nombre: '', precio: '', stock: '', infoNutricional: '' }]
+        ? producto.variantes.map(v => {
+            // Detectar si el tamaño es predefinido o especial
+            const esPredefinido = TAMANOS_PREDEFINIDOS.includes(v.nombre);
+            return {
+              tipoTamano: esPredefinido ? 'predefinido' : 'especial',
+              tamanoSeleccionado: esPredefinido ? v.nombre : 'especial',
+              nombre: v.nombre || '',
+              precio: v.precio || '',
+              stock: v.stock || '',
+              infoNutricional: v.infoNutricional || ''
+            };
+          })
+        : [{ 
+            tipoTamano: 'predefinido', 
+            tamanoSeleccionado: '', 
+            nombre: '', 
+            precio: '', 
+            stock: '', 
+            infoNutricional: '' 
+          }]
     });
     setMostrarFormulario(true);
   };
@@ -109,7 +173,14 @@ export default function Producto() {
       precioBase: '', 
       imagen: '', 
       categoriaId: '',
-      variantes: [{ nombre: '', precio: '', stock: '', infoNutricional: '' }]
+      variantes: [{ 
+        tipoTamano: 'predefinido', 
+        tamanoSeleccionado: '', 
+        nombre: '', 
+        precio: '', 
+        stock: '', 
+        infoNutricional: '' 
+      }]
     });
   };
 
@@ -427,7 +498,7 @@ export default function Producto() {
                               </button>
                             </div>
                             <small className="text-muted d-block mb-3">
-                              Ej: "12 personas", "16 personas", "Tamaño único"
+                              Seleccione un tamaño predefinido o agregue uno especial (Ej: "35 personas", "Mini", "XL")
                             </small>
 
                             {formData.variantes.map((variante, index) => (
@@ -451,17 +522,49 @@ export default function Producto() {
                                       <label className="form-label">
                                         Nombre / Tamaño <span className="text-danger">*</span>
                                       </label>
-                                      <input
-                                        type="text"
-                                        className="form-control"
-                                        value={variante.nombre}
-                                        onChange={(e) => handleVarianteChange(index, 'nombre', e.target.value)}
-                                        placeholder="Ej: 12 personas"
+                                      <select
+                                        className="form-select"
+                                        value={variante.tipoTamano === 'especial' ? 'especial' : variante.tamanoSeleccionado}
+                                        onChange={(e) => {
+                                          const valor = e.target.value;
+                                          if (valor === 'especial') {
+                                            handleVarianteChange(index, 'tipoTamano', 'especial');
+                                          } else {
+                                            handleVarianteChange(index, 'tipoTamano', 'predefinido');
+                                            handleVarianteChange(index, 'tamanoSeleccionado', valor);
+                                          }
+                                        }}
                                         required
-                                      />
+                                      >
+                                        <option value="">Seleccione un tamaño</option>
+                                        {TAMANOS_PREDEFINIDOS.map((tamano, idx) => (
+                                          <option key={idx} value={tamano}>
+                                            {tamano}
+                                          </option>
+                                        ))}
+                                        <option value="especial">➕ Agregar Tamaño Especial</option>
+                                      </select>
                                     </div>
 
-                                    <div className="col-md-3 mb-2">
+                                    {/* Campo para tamaño especial (solo visible si seleccionó "especial") */}
+                                    {variante.tipoTamano === 'especial' && (
+                                      <div className="col-md-6 mb-2">
+                                        <label className="form-label">
+                                          Tamaño Especial <span className="text-danger">*</span>
+                                        </label>
+                                        <input
+                                          type="text"
+                                          className="form-control"
+                                          value={variante.nombre}
+                                          onChange={(e) => handleVarianteChange(index, 'nombre', e.target.value)}
+                                          placeholder="Ej: 35 personas, Mini, XL"
+                                          required
+                                        />
+                                        <small className="text-muted">Ingrese un tamaño personalizado</small>
+                                      </div>
+                                    )}
+
+                                    <div className={variante.tipoTamano === 'especial' ? 'col-md-6 mb-2' : 'col-md-3 mb-2'}>
                                       <label className="form-label">
                                         Precio <span className="text-danger">*</span>
                                       </label>
@@ -477,7 +580,7 @@ export default function Producto() {
                                       />
                                     </div>
 
-                                    <div className="col-md-3 mb-2">
+                                    <div className={variante.tipoTamano === 'especial' ? 'col-md-6 mb-2' : 'col-md-3 mb-2'}>
                                       <label className="form-label">Stock</label>
                                       <input
                                         type="number"
