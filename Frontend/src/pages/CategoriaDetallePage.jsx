@@ -113,8 +113,15 @@ function CategoriaDetallePage() {
                 alt={producto.nombre}
                 className="producto-imagen"
                 onError={(e) => {
-                  console.warn(`⚠️  [CategoriaDetallePage] Error cargando imagen para producto ${producto.id}`);
-                  e.target.onerror = null;
+                  // Prevenir loop infinito si ya estamos usando DEFAULT_IMAGE
+                  if (e.target.src.includes('etiqueta-vacia.png')) {
+                    console.error(`❌ [CategoriaDetallePage] DEFAULT_IMAGE falló para producto ${producto.id}`);
+                    e.target.onerror = null; // Remover handler para evitar más llamadas
+                    return;
+                  }
+                  
+                  console.warn(`⚠️  [CategoriaDetallePage] Error cargando imagen para producto ${producto.id}, usando fallback`);
+                  e.target.onerror = null; // Remover handler ANTES de cambiar src
                   e.target.src = DEFAULT_IMAGE;
                 }}
               />

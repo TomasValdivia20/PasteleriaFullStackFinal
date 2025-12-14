@@ -31,7 +31,24 @@ export default function CartasProductos({ producto }) {
 
   return (
     <div className="CategoriaProductos-cartas">
-      <img src={imgSrc} alt={title} loading="lazy" decoding="async" />
+      <img 
+        src={imgSrc} 
+        alt={title} 
+        loading="lazy" 
+        decoding="async"
+        onError={(e) => {
+          // Prevenir loop infinito si ya estamos usando placeholder
+          if (e.target.src === placeholder || e.target.src.includes('product-thumb-1.png')) {
+            console.error(`❌ [CartasProductos] Placeholder falló para producto ${producto.id}`);
+            e.target.onerror = null;
+            return;
+          }
+          
+          console.warn(`⚠️  [CartasProductos] Error cargando imagen para producto ${producto.id}, usando placeholder`);
+          e.target.onerror = null;
+          e.target.src = placeholder;
+        }}
+      />
       <div className="CategoriaProductos-informacion">
         <h2>{title}</h2>
         <p>{description}</p>

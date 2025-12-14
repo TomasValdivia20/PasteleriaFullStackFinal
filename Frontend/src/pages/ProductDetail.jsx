@@ -128,7 +128,15 @@ const ProductDetail = () => {
             src={resolveProductImageUrl(producto)} 
             alt={producto.nombre}
             onError={(e) => {
-              console.error(`❌ [ProductDetail] Error cargando imagen: ${e.target.src}`);
+              // Prevenir loop infinito si ya estamos usando placeholderImage
+              if (e.target.src === placeholderImage || e.target.src.includes('product-thumb-1.png')) {
+                console.error(`❌ [ProductDetail] Placeholder falló para producto ${producto.id}`);
+                e.target.onerror = null;
+                return;
+              }
+              
+              console.error(`❌ [ProductDetail] Error cargando imagen: ${e.target.src}, usando placeholder`);
+              e.target.onerror = null; // Remover ANTES de cambiar src
               e.target.src = placeholderImage;
             }}
           />
@@ -143,7 +151,8 @@ const ProductDetail = () => {
                   alt={`${producto.nombre} - ${img.orden}`}
                   className={img.esPrincipal ? 'miniatura activa' : 'miniatura'}
                   onError={(e) => {
-                    console.error(`❌ Error cargando miniatura: ${e.target.src}`);
+                    console.error(`❌ [ProductDetail] Error cargando miniatura ${img.id}, ocultando`);
+                    e.target.onerror = null; // Prevenir loop
                     e.target.style.display = 'none';
                   }}
                 />
