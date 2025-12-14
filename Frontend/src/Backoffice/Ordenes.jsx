@@ -65,7 +65,8 @@ export default function Ordenes() {
       cargarOrdenes(); // Recargar tabla
     } catch (error) {
       console.error('Error al actualizar estado:', error);
-      alert('Error al actualizar el estado de la orden');
+      const errorMsg = error.response?.data?.error || error.message || 'Error desconocido';
+      alert(`Error al actualizar el estado de la orden: ${errorMsg}`);
     } finally {
       setGuardandoEstado(false);
     }
@@ -89,6 +90,7 @@ export default function Ordenes() {
   const getBadgeEstado = (estado) => {
     switch(estado) {
       case 'COMPLETADA': return 'bg-success';
+      case 'ENTREGADA': return 'bg-primary';
       case 'PROCESANDO': return 'bg-info';
       case 'PENDIENTE': return 'bg-warning';
       case 'CANCELADA': return 'bg-danger';

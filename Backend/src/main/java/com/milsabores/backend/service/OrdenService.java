@@ -349,6 +349,18 @@ public class OrdenService {
     public Orden cambiarEstado(Long ordenId, String nuevoEstado) {
         logger.info("🔄 [ESTADO] Cambiando estado de orden ID: {} → {}", ordenId, nuevoEstado);
         
+        // Validar estado permitido
+        List<String> estadosPermitidos = Arrays.asList("PENDIENTE", "PROCESANDO", "COMPLETADA", "ENTREGADA", "CANCELADA");
+        if (!estadosPermitidos.contains(nuevoEstado)) {
+            String mensaje = String.format(
+                "Estado '%s' no válido. Estados permitidos: %s", 
+                nuevoEstado, 
+                String.join(", ", estadosPermitidos)
+            );
+            logger.error("❌ [ESTADO] {}", mensaje);
+            throw new RuntimeException(mensaje);
+        }
+        
         Orden orden = ordenRepository.findById(ordenId)
             .orElseThrow(() -> {
                 logger.error("❌ Orden no encontrada: {}", ordenId);
