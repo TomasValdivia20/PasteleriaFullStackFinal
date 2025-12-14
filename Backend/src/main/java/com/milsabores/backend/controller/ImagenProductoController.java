@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -55,6 +56,7 @@ public class ImagenProductoController {
      * @RequestParam se usa para parámetros primitivos opcionales
      */
     @PostMapping(consumes = "multipart/form-data")
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLEADO')")
     public ResponseEntity<?> subirImagen(
             @PathVariable Long productoId,
             @RequestPart("file") MultipartFile file,
@@ -101,6 +103,7 @@ public class ImagenProductoController {
      * DELETE /api/productos/{productoId}/imagenes/{imagenId}
      */
     @DeleteMapping("/{imagenId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLEADO')")
     public ResponseEntity<Void> eliminarImagen(
             @PathVariable Long productoId,
             @PathVariable Long imagenId,
@@ -124,6 +127,7 @@ public class ImagenProductoController {
      * PATCH /api/productos/{productoId}/imagenes/{imagenId}/principal
      */
     @PatchMapping("/{imagenId}/principal")
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLEADO')")
     public ResponseEntity<ImagenProducto> marcarComoPrincipal(
             @PathVariable Long productoId,
             @PathVariable Long imagenId,

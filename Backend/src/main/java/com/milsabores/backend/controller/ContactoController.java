@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -77,6 +78,7 @@ public class ContactoController {
      * GET /api/contactos
      */
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLEADO')")
     public ResponseEntity<List<Contacto>> listarContactos(
             @RequestParam(required = false) Boolean leido) {
         
@@ -98,6 +100,7 @@ public class ContactoController {
      * GET /api/contactos/{id}
      */
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLEADO')")
     public ResponseEntity<Contacto> obtenerContactoPorId(@PathVariable Long id) {
         logger.info("🔍 Admin solicitando contacto con ID: {}", id);
         
@@ -111,6 +114,7 @@ public class ContactoController {
      * PUT /api/contactos/{id}/leido
      */
     @PutMapping("/{id}/leido")
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLEADO')")
     public ResponseEntity<Contacto> marcarComoLeido(
             @PathVariable Long id,
             @RequestBody Map<String, Boolean> body) {
@@ -136,6 +140,7 @@ public class ContactoController {
      * DELETE /api/contactos/{id}
      */
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLEADO')")
     public ResponseEntity<Void> eliminarContacto(@PathVariable Long id) {
         try {
             logger.info("🗑️  Admin eliminando contacto con ID: {}", id);
@@ -155,6 +160,7 @@ public class ContactoController {
      * GET /api/contactos/stats/no-leidos
      */
     @GetMapping("/stats/no-leidos")
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLEADO')")
     public ResponseEntity<Map<String, Long>> contarNoLeidos() {
         logger.info("📊 Admin solicitando estadísticas de mensajes");
         
