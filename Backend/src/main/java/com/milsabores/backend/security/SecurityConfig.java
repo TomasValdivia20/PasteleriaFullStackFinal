@@ -77,30 +77,19 @@ public class SecurityConfig {
                 // Contacto público - solo creación
                 .requestMatchers(HttpMethod.POST, "/api/contactos").permitAll()
                 
+                // Logs públicos (frontend logging)
+                .requestMatchers(HttpMethod.POST, "/api/logs").permitAll()
+                
                 // Endpoints solo para ADMIN
                 .requestMatchers("/api/usuarios/**").hasRole("ADMIN")
                 .requestMatchers("/api/reportes/**").hasRole("ADMIN")
                 
-                // Endpoints para ADMIN y EMPLEADO
-                .requestMatchers(HttpMethod.GET, "/api/ordenes/**").hasAnyRole("ADMIN", "EMPLEADO")
-                .requestMatchers(HttpMethod.GET, "/api/contactos/**").hasAnyRole("ADMIN", "EMPLEADO")
-                
-                // Gestión de productos - solo ADMIN
-                .requestMatchers(HttpMethod.POST, "/api/productos/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/api/productos/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/productos/**").hasRole("ADMIN")
-                
-                // Gestión de categorías - solo ADMIN
-                .requestMatchers(HttpMethod.POST, "/api/categorias/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/api/categorias/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/categorias/**").hasRole("ADMIN")
-                
-                // Gestión de contactos - solo ADMIN
-                .requestMatchers(HttpMethod.PUT, "/api/contactos/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/contactos/**").hasRole("ADMIN")
-                
                 // Crear órdenes - CLIENTE autenticado
                 .requestMatchers(HttpMethod.POST, "/api/ordenes/crear").hasRole("CLIENTE")
+                
+                // IMPORTANTE: Productos, Categorías, Contacto, Órdenes e Imágenes 
+                // usan @PreAuthorize en controllers (ADMIN + EMPLEADO)
+                // NO especificar reglas aquí para que @PreAuthorize tenga precedencia
                 
                 // Todos los demás requests requieren autenticación
                 .anyRequest().authenticated()
