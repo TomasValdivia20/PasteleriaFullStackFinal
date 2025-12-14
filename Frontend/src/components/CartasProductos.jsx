@@ -12,12 +12,21 @@ export default function CartasProductos({ producto }) {
   if (producto.imagenes && producto.imagenes.length > 0) {
     // Buscar imagen principal
     const imagenPrincipal = producto.imagenes.find(img => img.esPrincipal);
-    imgSrc = imagenPrincipal ? imagenPrincipal.urlSupabase : producto.imagenes[0].urlSupabase;
-    console.log('✅ [CartasProductos] Usando imagen de Supabase:', imgSrc);
-  } else if (producto.imagen) {
-    // Fallback: imagen local legacy
-    imgSrc = productImages[producto.id] || producto.imagen;
-    console.log('⚠️  [CartasProductos] Usando imagen legacy:', imgSrc);
+    const imagenUrl = imagenPrincipal ? imagenPrincipal.urlSupabase : producto.imagenes[0].urlSupabase;
+    
+    // Si es URL de Supabase (https://), usarla directamente
+    if (imagenUrl && imagenUrl.startsWith('http')) {
+      imgSrc = imagenUrl;
+      console.log('✅ [CartasProductos] Usando imagen de Supabase:', imgSrc);
+    } else {
+      // Si es ruta local (/assets/...), usar productImages fallback
+      imgSrc = productImages[producto.id] || placeholder;
+      console.log('⚠️  [CartasProductos] Ruta local detectada, usando fallback:', imgSrc);
+    }
+  } else {
+    // Fallback final: productImages por ID
+    imgSrc = productImages[producto.id] || placeholder;
+    console.log('⚠️  [CartasProductos] Sin imagenes[], usando productImages[' + producto.id + ']');
   }
 
   return (

@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { cargarProductosPorCategoria, cargarCategorias } from "../assets/data/dataLoader";
-import { DEFAULT_IMAGE } from "../utils/assetHelpers";
+import { DEFAULT_IMAGE, resolveProductImageUrl } from "../utils/assetHelpers";
 import "../css/catalogo.css";
 
 function CategoriaDetallePage() {
@@ -109,32 +109,11 @@ function CategoriaDetallePage() {
           {productos.map((producto) => (
             <Link key={producto.id} to={`/producto/${producto.id}`} className="producto-card">
               <img
-                src={producto.imagen}
+                src={resolveProductImageUrl(producto)}
                 alt={producto.nombre}
                 className="producto-imagen"
                 onError={(e) => {
-                  const currentSrc = e.target.src;
-                  
-                  // Prevenir loop infinito
-                  if (currentSrc.includes('etiqueta-vacia.png')) {
-                    return;
-                  }
-                  
-                  // Intentar con extensión alternativa (.jpg si era .jpeg o viceversa)
-                  if (currentSrc.endsWith('.jpeg') && !e.target.dataset.triedJpg) {
-                    console.warn(`⚠️  [CategoriaDetallePage] .jpeg falló, intentando .jpg para: ${producto.imagen}`);
-                    e.target.dataset.triedJpg = 'true';
-                    e.target.src = currentSrc.replace('.jpeg', '.jpg');
-                    return;
-                  } else if (currentSrc.endsWith('.jpg') && !e.target.dataset.triedJpeg) {
-                    console.warn(`⚠️  [CategoriaDetallePage] .jpg falló, intentando .jpeg para: ${producto.imagen}`);
-                    e.target.dataset.triedJpeg = 'true';
-                    e.target.src = currentSrc.replace('.jpg', '.jpeg');
-                    return;
-                  }
-                  
-                  // Si ya intentamos ambas extensiones, usar imagen por defecto
-                  console.warn(`⚠️  [CategoriaDetallePage] Error cargando imagen: ${producto.imagen}`);
+                  console.warn(`⚠️  [CategoriaDetallePage] Error cargando imagen para producto ${producto.id}`);
                   e.target.onerror = null;
                   e.target.src = DEFAULT_IMAGE;
                 }}

@@ -4,6 +4,8 @@
  * En desarrollo y producción (Vercel): /assets/img/foto.jpg
  */
 
+import productImages from './productImages';
+
 const BASE_PATH = '/';
 
 /**
@@ -76,12 +78,18 @@ export const resolveProductImageUrl = (producto) => {
     const urlSupabase = imagenPrincipal ? imagenPrincipal.urlSupabase : producto.imagenes[0].urlSupabase;
     
     if (urlSupabase) {
-      console.log(`✅ [resolveProductImageUrl] Usando Supabase: ${urlSupabase}`);
-      return urlSupabase;
+      // Si es URL real de Supabase (https://), usarla directamente
+      if (urlSupabase.startsWith('http://') || urlSupabase.startsWith('https://')) {
+        console.log(`✅ [resolveProductImageUrl] Usando Supabase URL: ${urlSupabase}`);
+        return urlSupabase;
+      }
+      // Si es ruta local (/assets/...), usar productImages fallback con ID
+      console.log(`⚠️ [resolveProductImageUrl] Ruta local en imagenes[], usando productImages[${producto.id}]`);
+      return productImages[producto.id] || DEFAULT_IMAGE;
     }
   }
 
-  // PRIORIDAD 2: Path local en producto.imagen
+  // PRIORIDAD 2: Path local en producto.imagen (campo deprecated - ya no existe en backend)
   if (producto.imagen) {
     // Si es URL completa (Supabase), usarla directamente
     if (producto.imagen.startsWith('http://') || producto.imagen.startsWith('https://')) {
@@ -94,7 +102,13 @@ export const resolveProductImageUrl = (producto) => {
     return getAssetPath(producto.imagen);
   }
 
-  // FALLBACK: Imagen por defecto
-  console.warn(`⚠️ [resolveProductImageUrl] No se encontró imagen para producto ${producto.id || 'unknown'}, usando fallback`);
+  // FALLBACK: productImages por ID si no hay imagenes[] ni imagen
+  if (producto.id && productImages[producto.id]) {
+    console.log(`⚠️ [resolveProductImageUrl] Usando fallback productImages[${producto.id}]`);
+    return productImages[producto.id];
+  }
+
+  // FALLBACK FINAL: Imagen por defecto
+  console.warn(`⚠️ [resolveProductImageUrl] No se encontró imagen para producto ${producto.id || 'unknown'}, usando DEFAULT_IMAGE`);
   return DEFAULT_IMAGE;
 };

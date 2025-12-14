@@ -3,6 +3,7 @@ package com.milsabores.backend.loader;
 import com.milsabores.backend.model.Categoria;
 import com.milsabores.backend.model.Producto;
 import com.milsabores.backend.model.VarianteProducto;
+import com.milsabores.backend.model.ImagenProducto;
 import com.milsabores.backend.repository.CategoriaRepository;
 import com.milsabores.backend.repository.ProductoRepository;
 import org.slf4j.Logger;
@@ -12,6 +13,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -242,15 +244,30 @@ public class DataInitializer implements CommandLineRunner {
         Producto producto = new Producto();
         producto.setNombre(nombre);
         producto.setDescripcion(desc);
-        // img deprecated - usar ImagenProducto entity
         producto.setPrecioBase(precioBase);
         producto.setCategoria(cat);
         producto.setVariantes(new HashSet<>());
+        producto.setImagenes(new HashSet<>());
 
-        // Asignar bidireccionalmente
+        // Asignar variantes bidireccionalmente
         for (VarianteProducto v : variantes) {
             v.setProducto(producto);
             producto.getVariantes().add(v);
+        }
+        
+        // Crear ImagenProducto usando la ruta img (ahora como imagen local fallback)
+        if (img != null && !img.isEmpty()) {
+            ImagenProducto imagenProducto = new ImagenProducto();
+            imagenProducto.setProducto(producto);
+            // Por ahora usamos rutas locales como urlSupabase (se puede migrar a Supabase después)
+            imagenProducto.setUrlSupabase(img);
+            imagenProducto.setNombreArchivo(img.substring(img.lastIndexOf('/') + 1));
+            imagenProducto.setTipoMime("image/jpeg");
+            imagenProducto.setEsPrincipal(true);
+            imagenProducto.setOrden(0);
+            imagenProducto.setFechaCarga(LocalDateTime.now());
+            
+            producto.getImagenes().add(imagenProducto);
         }
 
         productoRepository.save(producto);
