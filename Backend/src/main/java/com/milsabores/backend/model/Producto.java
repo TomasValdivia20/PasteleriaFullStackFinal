@@ -24,8 +24,6 @@ public class Producto {
     @Column(length = 1000)
     private String descripcion;
 
-    private String imagen; // DEPRECATED: Se mantiene por compatibilidad, usar imagenes[]
-
     private Integer precioBase;
 
     @ManyToOne

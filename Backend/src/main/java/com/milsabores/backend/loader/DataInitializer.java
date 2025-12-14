@@ -242,7 +242,7 @@ public class DataInitializer implements CommandLineRunner {
         Producto producto = new Producto();
         producto.setNombre(nombre);
         producto.setDescripcion(desc);
-        producto.setImagen(img);
+        // img deprecated - usar ImagenProducto entity
         producto.setPrecioBase(precioBase);
         producto.setCategoria(cat);
         producto.setVariantes(new HashSet<>());

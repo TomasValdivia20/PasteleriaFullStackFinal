@@ -114,7 +114,6 @@ public class ProductoService {
                     producto.setNombre(productoActualizado.getNombre());
                     producto.setDescripcion(productoActualizado.getDescripcion());
                     producto.setPrecioBase(productoActualizado.getPrecioBase());
-                    producto.setImagen(productoActualizado.getImagen());
                     producto.setCategoria(productoActualizado.getCategoria());
                     
                     // Actualizar variantes si se proporcionan

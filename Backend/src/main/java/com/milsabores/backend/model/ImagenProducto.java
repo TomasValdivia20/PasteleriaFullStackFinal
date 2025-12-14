@@ -2,18 +2,23 @@ package com.milsabores.backend.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 /**
  * Entidad para almacenar referencias a imágenes en Supabase Storage
  * Cada producto puede tener múltiples imágenes
+ * 
+ * FIX equals/hashCode para Set compatibility (2025-12-13):
+ * Mismo fix que VarianteProducto - usar solo ID sin incluir 'producto'
  */
 @Entity
 @Table(name = "imagenes_producto")
-@Data
+@Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class ImagenProducto {
@@ -76,5 +81,22 @@ public class ImagenProducto {
         if (fechaCarga == null) {
             fechaCarga = LocalDateTime.now();
         }
+    }
+
+    /**
+     * equals/hashCode usando SOLO el ID (PK)
+     * Evita comparación circular y garantiza estabilidad en HashSet
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ImagenProducto)) return false;
+        ImagenProducto that = (ImagenProducto) o;
+        return id != null && Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode(); // Constante durante toda la vida del objeto
     }
 }
