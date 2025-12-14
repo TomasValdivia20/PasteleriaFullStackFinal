@@ -1,6 +1,8 @@
 package com.milsabores.backend.service;
 
 import com.milsabores.backend.dto.CrearOrdenRequest;
+import com.milsabores.backend.dto.OrdenDetalleDTO;
+import com.milsabores.backend.dto.ProductoOrdenDTO;
 import com.milsabores.backend.model.DetalleOrden;
 import com.milsabores.backend.model.Orden;
 import com.milsabores.backend.model.Usuario;
@@ -293,5 +295,74 @@ public class OrdenService {
         
         logger.info("✅ [STATS] Resumen - Total órdenes: {}, Mes actual: {}", totalOrdenes, ordenesMesActual);
         return resumen;
+    }
+
+    /**
+     * Obtener detalle completo de una orden con lista de productos
+     * Usado en Backoffice para ver qué productos ordenó el cliente
+     */
+    public OrdenDetalleDTO obtenerDetalleOrden(Long ordenId) {
+        logger.info("🔍 [DETALLE] Obteniendo detalle de orden ID: {}", ordenId);
+        
+        Orden orden = ordenRepository.findById(ordenId)
+            .orElseThrow(() -> {
+                logger.error("❌ Orden no encontrada: {}", ordenId);
+                return new RuntimeException("Orden no encontrada con ID: " + ordenId);
+            });
+        
+        // Construir lista de productos
+        List<ProductoOrdenDTO> productosDTO = new ArrayList<>();
+        for (DetalleOrden detalle : orden.getDetalles()) {
+            ProductoOrdenDTO productoDTO = new ProductoOrdenDTO();
+            productoDTO.setNombreProducto(detalle.getProducto().getNombre());
+            productoDTO.setNombreVariante(detalle.getVariante() != null ? detalle.getVariante().getNombre() : null);
+            productoDTO.setCantidad(detalle.getCantidad());
+            productoDTO.setPrecioUnitario(detalle.getPrecioUnitario());
+            productoDTO.setSubtotal(detalle.getSubtotal());
+            
+            productosDTO.add(productoDTO);
+        }
+        
+        // Construir DTO completo
+        OrdenDetalleDTO detalleDTO = new OrdenDetalleDTO();
+        detalleDTO.setId(orden.getId());
+        detalleDTO.setClienteNombre(orden.getUsuario().getNombre());
+        detalleDTO.setClienteApellido(orden.getUsuario().getApellido());
+        detalleDTO.setClienteDireccion(orden.getUsuario().getDireccion());
+        detalleDTO.setClienteRegion(orden.getUsuario().getRegion());
+        detalleDTO.setFecha(orden.getFecha());
+        detalleDTO.setEstado(orden.getEstado());
+        detalleDTO.setTotal(orden.getTotal());
+        detalleDTO.setProductos(productosDTO);
+        
+        logger.info("✅ [DETALLE] Orden ID: {}, Productos: {}, Total: ${}", 
+            ordenId, productosDTO.size(), orden.getTotal());
+        
+        return detalleDTO;
+    }
+
+    /**
+     * Cambiar estado de una orden (COMPLETADA → ENTREGADA)
+     * Usado en Backoffice para marcar pedidos entregados
+     */
+    @Transactional
+    public Orden cambiarEstado(Long ordenId, String nuevoEstado) {
+        logger.info("🔄 [ESTADO] Cambiando estado de orden ID: {} → {}", ordenId, nuevoEstado);
+        
+        Orden orden = ordenRepository.findById(ordenId)
+            .orElseThrow(() -> {
+                logger.error("❌ Orden no encontrada: {}", ordenId);
+                return new RuntimeException("Orden no encontrada con ID: " + ordenId);
+            });
+        
+        String estadoAnterior = orden.getEstado();
+        orden.setEstado(nuevoEstado);
+        
+        Orden ordenActualizada = ordenRepository.save(orden);
+        
+        logger.info("✅ [ESTADO] Orden ID: {} actualizada - {} → {}", 
+            ordenId, estadoAnterior, nuevoEstado);
+        
+        return ordenActualizada;
     }
 }

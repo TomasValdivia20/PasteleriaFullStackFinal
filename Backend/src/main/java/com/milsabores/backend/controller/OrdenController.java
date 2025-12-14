@@ -1,6 +1,8 @@
 package com.milsabores.backend.controller;
 
+import com.milsabores.backend.dto.ActualizarEstadoRequest;
 import com.milsabores.backend.dto.CrearOrdenRequest;
+import com.milsabores.backend.dto.OrdenDetalleDTO;
 import com.milsabores.backend.model.Orden;
 import com.milsabores.backend.service.OrdenService;
 import org.slf4j.Logger;
@@ -132,6 +134,58 @@ public class OrdenController {
         } catch (Exception e) {
             logger.error("❌ [GET] Error al generar resumen: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    /**
+     * Obtener detalle completo de una orden con productos (ADMIN y EMPLEADO)
+     * GET /api/ordenes/{id}/detalle
+     */
+    @GetMapping("/{id}/detalle")
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLEADO')")
+    public ResponseEntity<?> obtenerDetalle(@PathVariable Long id) {
+        logger.info("🔍 [GET] /api/ordenes/{}/detalle", id);
+        
+        try {
+            OrdenDetalleDTO detalle = ordenService.obtenerDetalleOrden(id);
+            logger.info("✅ [GET] Detalle orden ID: {} - Productos: {}", id, detalle.getProductos().size());
+            return ResponseEntity.ok(detalle);
+        } catch (RuntimeException e) {
+            logger.error("❌ [GET] Error al obtener detalle: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            logger.error("❌ [GET] Error interno al obtener detalle: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("error", "Error al obtener detalle de la orden"));
+        }
+    }
+
+    /**
+     * Cambiar estado de una orden (ADMIN y EMPLEADO)
+     * PUT /api/ordenes/{id}/estado
+     */
+    @PutMapping("/{id}/estado")
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLEADO')")
+    public ResponseEntity<?> cambiarEstado(
+        @PathVariable Long id, 
+        @RequestBody ActualizarEstadoRequest request
+    ) {
+        logger.info("🔄 [PUT] /api/ordenes/{}/estado - Nuevo estado: {}", id, request.getNuevoEstado());
+        
+        try {
+            Orden ordenActualizada = ordenService.cambiarEstado(id, request.getNuevoEstado());
+            logger.info("✅ [PUT] Estado actualizado - Orden ID: {}, Estado: {}", 
+                id, ordenActualizada.getEstado());
+            return ResponseEntity.ok(ordenActualizada);
+        } catch (RuntimeException e) {
+            logger.error("❌ [PUT] Error al cambiar estado: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            logger.error("❌ [PUT] Error interno al cambiar estado: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("error", "Error al cambiar estado de la orden"));
         }
     }
 }
